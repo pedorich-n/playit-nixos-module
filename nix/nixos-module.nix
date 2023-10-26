@@ -1,4 +1,4 @@
-{ _, withSystem }:
+{ withSystem, ... }:
 { config, lib, pkgs, ... }:
 with lib;
 let

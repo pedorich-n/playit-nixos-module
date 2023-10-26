@@ -26,7 +26,7 @@
     };
   };
 
-  outputs = inputs@{ flake-parts, ... }: flake-parts.lib.mkFlake { inherit inputs; } ({ withSystem, importApply, self, ... }: {
+  outputs = inputs@{ flake-parts, ... }: flake-parts.lib.mkFlake { inherit inputs; } ({ withSystem, flake-parts-lib, self, ... }: {
     systems = [ "x86_64-linux" ];
 
     perSystem = { config, lib, pkgs, system, ... }: {
@@ -42,7 +42,7 @@
     };
 
     flake = {
-      nixosModules.default = importApply ./nix/nixos-module.nix { localFlake = self; inherit withSystem; };
+      nixosModules.default = flake-parts-lib.importApply ./nix/nixos-module.nix { localFlake = self; inherit withSystem; };
     };
   });
 }
