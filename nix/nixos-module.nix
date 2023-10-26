@@ -3,8 +3,7 @@
 with lib;
 let
   cfg = config.services.playit;
-  defaultUser = "playit";
-  defaultPackage = withSystem ({ config, ... }: config.packages.playit-cli); 
+  defaultPackage = withSystem ({ config, ... }: config.packages.playit-cli);
 
   localMappingType = with types; submodule {
     options = {
@@ -64,28 +63,26 @@ in
 
       user = mkOption {
         type = types.str;
-        default = defaultUser;
+        default = "playit";
+        description = "User account under which Playit runs.";
       };
 
       group = mkOption {
         type = types.str;
-        default = defaultUser;
+        default = "playit";
+        description = "Group under which Playit runs.";
       };
     };
   };
 
   ###### implementation
   config = mkIf cfg.enable {
-    users.users = optionalAttrs (cfg.user == defaultUser) {
-      ${defaultUser} = {
-        isSystemUser = true;
-        group = cfg.group;
-      };
+    users.users.playit = optionalAttrs (cfg.user == "playit") {
+      isSystemUser = true;
+      group = cfg.group;
     };
 
-    users.groups = optionalAttrs (cfg.group == defaultUser) {
-      ${defaultUser} = { };
-    };
+    users.groups.playit = optionalAttrs (cfg.group == "playit") { };
 
     systemd.services.playit = {
       description = "Playit Agent";
