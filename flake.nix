@@ -26,7 +26,7 @@
     };
   };
 
-  outputs = inputs@{ flake-parts, ... }: flake-parts.lib.mkFlake { inherit inputs; } ({ withSystem, flake-parts-lib, self, ... }: {
+  outputs = inputs@{ flake-parts, ... }: flake-parts.lib.mkFlake { inherit inputs; } ({ moduleWithSystem, ... }: {
     systems = [ "x86_64-linux" ];
 
     perSystem = { config, lib, pkgs, system, ... }: {
@@ -38,11 +38,22 @@
       packages = {
         playit-cli = pkgs.callPackage ./nix/package.nix { inherit (inputs) playit-agent-source crane; };
         default = config.packages.playit-cli;
+        # mock = pkgs.callPackage ./test/mock-playit-cli { };
+      };
+
+      checks = {
+        test-services-playit = pkgs.callPackage ./test/test-services-playit.nix { };
       };
     };
 
     flake = {
-      nixosModules.default = flake-parts-lib.importApply ./nix/nixos-module.nix { localFlake = self; inherit withSystem; };
+      nixosModules.default = moduleWithSystem (
+        perSystem@{ config }: # NOTE: only explicit params will be in perSystem
+        nixos@{ ... }:
+        {
+          imports = [ (import ./nix/nixos-module.nix { package = perSystem.config.packages.playit-cli; }) ];
+        }
+      );
     };
   });
 }

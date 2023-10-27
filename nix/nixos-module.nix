@@ -1,13 +1,12 @@
-{ withSystem, ... }:
+{ package }:
 { config, lib, pkgs, ... }:
 with lib;
 let
   cfg = config.services.playit;
-  defaultPackage = withSystem ({ config, ... }: config.packages.playit-cli);
 
   localMappingType = with types; submodule {
     options = {
-      ip = mkOption {
+      host = mkOption {
         type = nullOr str;
         description = "Local IP to route traffic to";
         default = null;
@@ -20,20 +19,24 @@ let
     };
   };
 
-  localMappingToString = tunnelUUID: localMapping:
+  localMappingsToString = tunnelUUID: localMappings:
     let
-      ipPortString =
-        if (localMapping.ip != null && localMapping.port != null) then "${toString localMapping.ip}:${toString localMapping.port}"
-        else if (localMapping.ip != null && localMapping.port == null) then "${toString localMapping.ip}"
-        else if (localMapping.ip == null && localMapping.port != null) then "${toString localMapping.port}"
-        else "";
+      singleLocalMappingToString = tunnelUUID: localMapping:
+        let
+          ipPortString =
+            if (localMapping.host != null && localMapping.port != null) then "${toString localMapping.host}:${toString localMapping.port}"
+            else if (localMapping.host != null && localMapping.port == null) then "${toString localMapping.host}"
+            else if (localMapping.host == null && localMapping.port != null) then "${toString localMapping.port}"
+            else "";
+        in
+        "${toString tunnelUUID}=${ipPortString}";
     in
-    "${toString tunnelUUID}=${ipPortString}";
+    foldl' (acc: localMapping: acc ++ [ (singleLocalMappingToString tunnelUUID localMapping) ]) [ ] localMappings;
 
   maybeRunOverride =
     let
       maybeOverridesList = lists.optionals (cfg.runOverride != { }) (attrsets.foldlAttrs
-        (acc: tunnelUUID: localMapping: acc ++ [ (localMappingToString tunnelUUID localMapping) ]) [ ]
+        (acc: tunnelUUID: localMappings: acc ++ (localMappingsToString tunnelUUID localMappings)) [ ]
         cfg.runOverride);
     in
     strings.optionalString (maybeOverridesList != [ ]) ''run ${concatStringsSep "," maybeOverridesList}'';
@@ -46,7 +49,7 @@ in
 
       package = mkOption {
         type = types.package;
-        default = defaultPackage;
+        default = package;
         description = "Playit binary to run";
       };
 
@@ -77,12 +80,19 @@ in
 
   ###### implementation
   config = mkIf cfg.enable {
-    users.users.playit = optionalAttrs (cfg.user == "playit") {
-      isSystemUser = true;
-      group = cfg.group;
+    users.users = optionalAttrs (cfg.user == "playit") {
+      playit = {
+        isSystemUser = true;
+        group = "playit";
+        description = "Playit daemon user";
+      };
     };
 
-    users.groups.playit = optionalAttrs (cfg.group == "playit") { };
+    users.groups = optionalAttrs (cfg.group == "playit") {
+      playit = { };
+    };
+
+    environment.systemPackages = [ cfg.package ];
 
     systemd.services.playit = {
       description = "Playit Agent";
