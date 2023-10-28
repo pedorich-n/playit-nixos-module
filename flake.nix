@@ -2,8 +2,12 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
 
+    systems.url = "github:nix-systems/default";
     flake-parts.url = "github:hercules-ci/flake-parts";
-    flake-utils.url = "github:numtide/flake-utils";
+    flake-utils = {
+      url = "github:numtide/flake-utils";
+      inputs.systems.follows = "systems";
+    };
 
     rust-overlay = {
       url = "github:oxalica/rust-overlay";
@@ -27,7 +31,7 @@
   };
 
   outputs = inputs@{ flake-parts, ... }: flake-parts.lib.mkFlake { inherit inputs; } ({ moduleWithSystem, ... }: {
-    systems = [ "x86_64-linux" ];
+    systems = import inputs.systems;
 
     perSystem = { config, lib, pkgs, system, ... }: {
       _module.args.pkgs = import inputs.nixpkgs {

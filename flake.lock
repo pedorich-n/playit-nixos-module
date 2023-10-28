@@ -40,7 +40,9 @@
     },
     "flake-utils": {
       "inputs": {
-        "systems": "systems"
+        "systems": [
+          "systems"
+        ]
       },
       "locked": {
         "lastModified": 1694529238,
@@ -113,7 +115,8 @@
         "flake-utils": "flake-utils",
         "nixpkgs": "nixpkgs",
         "playit-agent-source": "playit-agent-source",
-        "rust-overlay": "rust-overlay"
+        "rust-overlay": "rust-overlay",
+        "systems": "systems"
       }
     },
     "rust-overlay": {
