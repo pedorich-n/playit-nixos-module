@@ -6,7 +6,7 @@ let
 
   localMappingType = with types; submodule {
     options = {
-      host = mkOption {
+      ip = mkOption {
         type = nullOr str;
         description = "Local IP to route traffic to";
         default = null;
@@ -24,9 +24,9 @@ let
       singleLocalMappingToString = tunnelUUID: localMapping:
         let
           ipPortString =
-            if (localMapping.host != null && localMapping.port != null) then "${toString localMapping.host}:${toString localMapping.port}"
-            else if (localMapping.host != null && localMapping.port == null) then "${toString localMapping.host}"
-            else if (localMapping.host == null && localMapping.port != null) then "${toString localMapping.port}"
+            if (localMapping.ip != null && localMapping.port != null) then "${toString localMapping.ip}:${toString localMapping.port}"
+            else if (localMapping.ip != null && localMapping.port == null) then "${toString localMapping.ip}"
+            else if (localMapping.ip == null && localMapping.port != null) then "${toString localMapping.port}"
             else "";
         in
         "${toString tunnelUUID}=${ipPortString}";
@@ -97,10 +97,10 @@ in
     systemd.services.playit = {
       description = "Playit Agent";
       wantedBy = [ "multi-user.target" ];
-      after = [ "network.target" ];
+      after = [ "network.target" "systemd-resolved.service" ];
 
       script = ''
-        ${getExe cfg.package} --secret_path ${cfg.secretPath} ${maybeRunOverride}
+        ${getExe cfg.package} --secret_wait --secret_path ${cfg.secretPath} ${maybeRunOverride}
       '';
 
       serviceConfig = {

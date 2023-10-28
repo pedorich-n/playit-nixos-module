@@ -47,12 +47,9 @@
     };
 
     flake = {
-      nixosModules.default = moduleWithSystem (
-        perSystem@{ config }: # NOTE: only explicit params will be in perSystem
-        nixos@{ ... }:
-        {
-          imports = [ (import ./nix/nixos-module.nix { package = perSystem.config.packages.playit-cli; }) ];
-        }
+      nixosModules.default = moduleWithSystem (perSystem@{ config }: { ... }: {
+        imports = [ (import ./nix/nixos-module.nix { package = perSystem.config.packages.playit-cli; }) ];
+      }
       );
     };
   });
