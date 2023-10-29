@@ -20,14 +20,12 @@ let
 
   maybeRunOverride =
     let
-      ipPortString = localMapping:
-        if (localMapping.ip != null && localMapping.port != null) then "${toString localMapping.ip}:${toString localMapping.port}"
-        else if (localMapping.ip != null && localMapping.port == null) then "${toString localMapping.ip}"
-        else if (localMapping.ip == null && localMapping.port != null) then "${toString localMapping.port}"
-        else throw "IP and Port can't both be empty!";
+      ipPortString = { ip, port }:
+        if (ip == null && port == null) then throw "IP and Port can't both be empty!"
+        else concatStringsSep ":" (filter (x: x != null && x != "") [ ip (toString port) ]);
 
       localMappingsToString = tunnelUUID: localMappings:
-        foldl' (acc: localMapping: acc ++ [ "${toString tunnelUUID}=${ipPortString localMapping}" ]) [ ] localMappings;
+        foldl' (acc: localMapping: acc ++ [ "${tunnelUUID}=${ipPortString localMapping}" ]) [ ] localMappings;
 
       maybeOverridesList = lists.optionals (cfg.runOverride != { }) (attrsets.foldlAttrs
         (acc: tunnelUUID: localMappings: acc ++ (localMappingsToString tunnelUUID localMappings)) [ ]
@@ -100,7 +98,7 @@ in
     environment.systemPackages = [ cfg.package ];
 
     systemd.services.playit = {
-      description = "playit.gg is a global proxy that allows anyone to host a server without port forwarding";
+      description = "Playit.gg agent";
       wantedBy = [ "multi-user.target" ];
       after = [ "network.target" "systemd-resolved.service" ];
 
@@ -112,6 +110,7 @@ in
         User = cfg.user;
         Group = cfg.group;
         Restart = "on-failure";
+        StateDirectory = "playit";
 
         # Hardening
         RestrictAddressFamilies = [ "AF_INET" "AF_INET6" ];

@@ -16,7 +16,7 @@ def main():
     args = parser.parse_args()
     args_dict = vars(args)
 
-    with open("/etc/playit-test/result.json", "w") as file:
+    with open("/var/lib/playit/result.json", "w") as file:
         json_object = json.dumps(args_dict, indent=4, sort_keys=True)
         file.write(json_object)
 

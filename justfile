@@ -1,4 +1,4 @@
-check:
+check-fmt:
     cd ./dev; nix flake check
 
 fmt:

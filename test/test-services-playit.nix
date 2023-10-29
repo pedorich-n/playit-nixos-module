@@ -1,17 +1,13 @@
 { pkgs, lib, ... }:
 let
-  resultFileLocation = "/etc/playit-test/result.json";
-  expectedFileLocation = "/etc/playit-test/expected.json";
+  resultFileLocation = "/var/lib/playit/result.json";
+  expectedFileLocation = "/var/lib/playit/expected.json";
 
   commonConfig = {
     imports = [ ../nix/nixos-module.nix ];
     services.playit.package = pkgs.callPackage ./mock-playit-cli { };
 
     environment.systemPackages = [ pkgs.diffutils ];
-
-    systemd.tmpfiles.rules = [
-      "d /etc/playit-test 0777 root root - -"
-    ];
   };
 
   withCommonConfig = config: lib.attrsets.recursiveUpdate config commonConfig;
