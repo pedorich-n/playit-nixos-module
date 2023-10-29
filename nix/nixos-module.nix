@@ -114,7 +114,6 @@ in
         Restart = "on-failure";
 
         # Hardening
-        # TODO: more?
         RestrictAddressFamilies = [ "AF_INET" "AF_INET6" ];
         DeviceAllow = [ "" ];
         LockPersonality = true;
@@ -123,6 +122,13 @@ in
         PrivateUsers = true;
         ProtectKernelModules = true;
         ProtectKernelTunables = true;
+        ProtectKernelLogs = true;
+        ProtectControlGroups = true;
+        ProtectSystem = "strict";
+        RestrictSUIDSGID = true;
+        ProtectClock = true;
+        NoNewPrivileges = true;
+        CapabilityBoundingSet = [ "" ];
       };
     };
   };
