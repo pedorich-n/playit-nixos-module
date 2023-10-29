@@ -126,6 +126,7 @@ in
         ProtectControlGroups = true;
         ProtectSystem = "strict";
         RestrictSUIDSGID = true;
+        RestrictNamespaces = true;
         ProtectClock = true;
         NoNewPrivileges = true;
         CapabilityBoundingSet = [ "" ];

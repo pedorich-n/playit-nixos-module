@@ -7,25 +7,24 @@ This NixOS module provides two things:
 
 ## Usage
 
-Add this module to `flake.nix`:
+Example `flake.nix`:
 ```Nix
 inputs = {
-    ...
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     playit-nixos-module.url = "github:pedorich-n/playit-nixos-module";
 }
-```
 
-Import module: 
-```Nix
+output = { nixpkgs, playit-nixos-module }: {
     nixosConfigurations = {
-      example = inputs.nixpkgs.lib.nixosSystem {
+      example = nixpkgs.lib.nixosSystem {
         system = "x86_64-linux";
         modules = [
-          inputs.playit-nixos-module.nixosModules.default
+          playit-nixos-module.nixosModules.default
           ./configuration.nix
         ];
       };
     };
+}
 ```
 
 Setup service:
@@ -42,4 +41,32 @@ Setup service:
     };
   };
 }
+```
+
+### Obtaining a secret
+
+Run 
+```Bash
+nix run github:pedorich-n/playit-nixos-module#playit-cli -- claim generate
+```
+
+This will output a code, use this code in next command
+```Bash
+nix run github:pedorich-n/playit-nixos-module#playit-cli -- claim exchange <code>
+```
+
+
+Follow the link and approve the agent on the website. After that `plait-cli` will output a secret to the console.
+Use this secret to create a TOML file like
+```TOML
+secret_key = "<secret>"
+```
+
+It is recommended to use secret manager like [agenix](https://github.com/ryantm/agenix) or [sops](https://github.com/Mic92/sops-nix) to avoid having exposed secret in `/nix/store`
+
+
+### Documentation
+To see latest documentation run
+```Bash
+nix run github:pedorich-n/playit-nixos-module#docs.serve
 ```
