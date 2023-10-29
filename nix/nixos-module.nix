@@ -48,8 +48,20 @@ in
 
       runOverride = mkOption {
         type = with types; attrsOf (listOf localMappingType);
-        description = "Attrset of local overrides. Name should be tunnel's UUID";
+        description = ''
+          Attrset of local overrides. Name should be tunnel's UUID.
+
+          ::: {.note}
+          Make sure you've allocated enough ports for a tunnel, if applying multiple overrides
+          :::
+        '';
         default = { };
+        example = literalExpression ''
+          runOverride = {
+            "890e3610-26cd-4e2b-b161-7cf0e4f69148" = [{ port = 8080; }];
+            "177485db-47aa-4fa9-9ccf-411ab761b9f0" = [{ ip = 192.168.1.1; port = 9000; }];
+          };
+        '';
       };
 
       secretPath = mkOption {
@@ -88,7 +100,7 @@ in
     environment.systemPackages = [ cfg.package ];
 
     systemd.services.playit = {
-      description = "Playit Agent";
+      description = "playit.gg is a global proxy that allows anyone to host a server without port forwarding";
       wantedBy = [ "multi-user.target" ];
       after = [ "network.target" "systemd-resolved.service" ];
 
@@ -99,6 +111,18 @@ in
       serviceConfig = {
         User = cfg.user;
         Group = cfg.group;
+        Restart = "on-failure";
+
+        # Hardening
+        # TODO: more?
+        RestrictAddressFamilies = [ "AF_INET" "AF_INET6" ];
+        DeviceAllow = [ "" ];
+        LockPersonality = true;
+        PrivateDevices = true;
+        PrivateTmp = true;
+        PrivateUsers = true;
+        ProtectKernelModules = true;
+        ProtectKernelTunables = true;
       };
     };
   };
