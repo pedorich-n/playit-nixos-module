@@ -1,9 +1,9 @@
-{ pkgs, playit-agent-source, crane, ... }:
+{ pkgs, playit-agent-source, craneLib, ... }:
 let
   toolchain = pkgs.rust-bin.stable.latest.default;
-  craneLib = (crane.mkLib pkgs).overrideToolchain toolchain;
+  craneLibWithOverride = craneLib.overrideToolchain toolchain;
 in
-craneLib.buildPackage {
+craneLibWithOverride.buildPackage {
   pname = "playit-cli";
   src = craneLib.cleanCargoSource playit-agent-source;
   strictDeps = true;

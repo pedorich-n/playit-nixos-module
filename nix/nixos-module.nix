@@ -1,5 +1,4 @@
-{ package }:
-{ config, lib, pkgs, ... }:
+{ config, lib, ... }:
 with lib;
 let
   cfg = config.services.playit;
@@ -19,22 +18,17 @@ let
     };
   };
 
-  localMappingsToString = tunnelUUID: localMappings:
-    let
-      singleLocalMappingToString = tunnelUUID: localMapping:
-        let
-          ipPortString =
-            if (localMapping.ip != null && localMapping.port != null) then "${toString localMapping.ip}:${toString localMapping.port}"
-            else if (localMapping.ip != null && localMapping.port == null) then "${toString localMapping.ip}"
-            else if (localMapping.ip == null && localMapping.port != null) then "${toString localMapping.port}"
-            else "";
-        in
-        "${toString tunnelUUID}=${ipPortString}";
-    in
-    foldl' (acc: localMapping: acc ++ [ (singleLocalMappingToString tunnelUUID localMapping) ]) [ ] localMappings;
-
   maybeRunOverride =
     let
+      ipPortString = localMapping:
+        if (localMapping.ip != null && localMapping.port != null) then "${toString localMapping.ip}:${toString localMapping.port}"
+        else if (localMapping.ip != null && localMapping.port == null) then "${toString localMapping.ip}"
+        else if (localMapping.ip == null && localMapping.port != null) then "${toString localMapping.port}"
+        else throw "IP and Port can't both be empty!";
+
+      localMappingsToString = tunnelUUID: localMappings:
+        foldl' (acc: localMapping: acc ++ [ "${toString tunnelUUID}=${ipPortString localMapping}" ]) [ ] localMappings;
+
       maybeOverridesList = lists.optionals (cfg.runOverride != { }) (attrsets.foldlAttrs
         (acc: tunnelUUID: localMappings: acc ++ (localMappingsToString tunnelUUID localMappings)) [ ]
         cfg.runOverride);
@@ -49,7 +43,6 @@ in
 
       package = mkOption {
         type = types.package;
-        default = package;
         description = "Playit binary to run";
       };
 

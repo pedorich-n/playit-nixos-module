@@ -6,6 +6,7 @@ import time
 
 def main():
     parser = argparse.ArgumentParser("Mock playit-cli")
+    parser.add_argument("--secret_wait", action="store_true", required=False)
     parser.add_argument("--secret_path", type=str, required=True)
 
     subparsers = parser.add_subparsers()

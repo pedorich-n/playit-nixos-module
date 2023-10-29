@@ -1,13 +1,11 @@
-{ pkgs, ... }:
+{ pkgs, lib, ... }:
 let
   resultFileLocation = "/etc/playit-test/result.json";
   expectedFileLocation = "/etc/playit-test/expected.json";
 
-  package = pkgs.callPackage ./mock-playit-cli { };
   commonConfig = {
-    imports = [
-      (import ../nix/nixos-module.nix { inherit package; })
-    ];
+    imports = [ ../nix/nixos-module.nix ];
+    services.playit.package = pkgs.callPackage ./mock-playit-cli { };
 
     environment.systemPackages = [ pkgs.diffutils ];
 
@@ -15,11 +13,13 @@ let
       "d /etc/playit-test 0777 root root - -"
     ];
   };
+
+  withCommonConfig = config: lib.attrsets.recursiveUpdate config commonConfig;
 in
 pkgs.nixosTest {
   name = "test-services-playit";
   nodes = {
-    machine1 = ({
+    machine1 = withCommonConfig {
       services.playit = {
         enable = true;
         secretPath = "/secret/path";
@@ -33,14 +33,15 @@ pkgs.nixosTest {
           ];
         };
       };
-    } // commonConfig);
+    };
 
-    machine2 = ({
+
+    machine2 = withCommonConfig {
       services.playit = {
         enable = true;
         secretPath = "/secret/path";
       };
-    } // commonConfig);
+    };
   };
 
   testScript = ''

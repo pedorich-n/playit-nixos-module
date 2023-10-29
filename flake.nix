@@ -33,28 +33,32 @@
   outputs = inputs@{ flake-parts, ... }: flake-parts.lib.mkFlake { inherit inputs; } ({ moduleWithSystem, ... }: {
     systems = import inputs.systems;
 
-    perSystem = { config, lib, pkgs, system, ... }: {
-      _module.args.pkgs = import inputs.nixpkgs {
-        inherit system;
-        overlays = [ inputs.rust-overlay.overlays.default ];
-      };
+    perSystem = { config, pkgs, system, ... }:
+      let
+        craneLib = inputs.crane.mkLib pkgs;
+      in
+      {
+        _module.args.pkgs = import inputs.nixpkgs {
+          inherit system;
+          overlays = [ inputs.rust-overlay.overlays.default ];
+        };
 
-      packages = {
-        playit-cli = pkgs.callPackage ./nix/package.nix { inherit (inputs) playit-agent-source crane; };
-        default = config.packages.playit-cli;
-        # mock = pkgs.callPackage ./test/mock-playit-cli { };
-      };
+        packages = {
+          playit-cli = pkgs.callPackage ./nix/package.nix { inherit (inputs) playit-agent-source; inherit craneLib; };
+          default = config.packages.playit-cli;
+          # mock = pkgs.callPackage ./test/mock-playit-cli { };
+        };
 
-      checks = {
-        test-services-playit = pkgs.callPackage ./test/test-services-playit.nix { };
+        checks = {
+          test-services-playit = pkgs.callPackage ./test/test-services-playit.nix { };
+        };
       };
-    };
 
     flake = {
       nixosModules.default = moduleWithSystem (perSystem@{ config }: { ... }: {
-        imports = [ (import ./nix/nixos-module.nix { package = perSystem.config.packages.playit-cli; }) ];
-      }
-      );
+        imports = [ ./nix/nixos-module.nix ];
+        services.playit.package = perSystem.config.packages.playit-cli;
+      });
     };
   });
 }
