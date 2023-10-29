@@ -1,2 +1,3 @@
 result
 .nixos-test-history
+.pre-commit-config.yaml
