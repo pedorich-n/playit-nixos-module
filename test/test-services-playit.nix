@@ -20,13 +20,8 @@ pkgs.nixosTest {
         enable = true;
         secretPath = "/secret/path";
         runOverride = {
-          "65dd196c4-5538-4633-98b2-fb26b45787b81" = [
-            { port = 1234; }
-            { ip = "192.168.1.10"; port = 8080; }
-          ];
-          "9bad3ee3-e7b7-49c2-86e7-3ab5558a905a" = [
-            { port = 9000; }
-          ];
+          "65dd196c4-5538-4633-98b2-fb26b45787b81" = { ip = "192.168.1.10"; port = 8080; };
+          "9bad3ee3-e7b7-49c2-86e7-3ab5558a905a".port = 9000;
         };
       };
     };

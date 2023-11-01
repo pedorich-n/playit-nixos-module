@@ -24,11 +24,8 @@ let
         if (ip == null && port == null) then throw "IP and Port can't both be empty!"
         else concatStringsSep ":" (filter (x: x != null && x != "") [ ip (toString port) ]);
 
-      localMappingsToString = tunnelUUID: localMappings:
-        foldl' (acc: localMapping: acc ++ [ "${tunnelUUID}=${ipPortString localMapping}" ]) [ ] localMappings;
-
       maybeOverridesList = lists.optionals (cfg.runOverride != { }) (attrsets.foldlAttrs
-        (acc: tunnelUUID: localMappings: acc ++ (localMappingsToString tunnelUUID localMappings)) [ ]
+        (acc: tunnelUUID: localMapping: acc ++ [ "${tunnelUUID}=${ipPortString localMapping}" ]) [ ]
         cfg.runOverride);
     in
     strings.optionalString (maybeOverridesList != [ ]) ''run ${concatStringsSep "," maybeOverridesList}'';
@@ -45,19 +42,13 @@ in
       };
 
       runOverride = mkOption {
-        type = with types; attrsOf (listOf localMappingType);
-        description = ''
-          Attrset of local overrides. Name should be tunnel's UUID.
-
-          ::: {.note}
-          Make sure you've allocated enough ports for a tunnel, if applying multiple overrides
-          :::
-        '';
+        type = with types; attrsOf localMappingType;
+        description = "Attrset of local overrides. Name should be tunnel's UUID.";
         default = { };
         example = literalExpression ''
           runOverride = {
-            "890e3610-26cd-4e2b-b161-7cf0e4f69148" = [{ port = 8080; }];
-            "177485db-47aa-4fa9-9ccf-411ab761b9f0" = [{ ip = 192.168.1.1; port = 9000; }];
+            "890e3610-26cd-4e2b-b161-7cf0e4f69148".port = 8080;
+            "177485db-47aa-4fa9-9ccf-411ab761b9f0" = { ip = 192.168.1.1; port = 9000; };
           };
         '';
       };

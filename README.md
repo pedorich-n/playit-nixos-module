@@ -36,8 +36,8 @@ Setup service:
     group = "playit";
     secretPath = config.age.secrets.playit-secret.path;
     runOverride = {
-      "890e3610-26cd-4e2b-b161-7cf0e4f69148" = [{ port = 8080; }];
-      "177485db-47aa-4fa9-9ccf-411ab761b9f0" = [{ ip = 192.168.1.1; port = 9000; }];
+      "890e3610-26cd-4e2b-b161-7cf0e4f69148".port = 8080;
+      "177485db-47aa-4fa9-9ccf-411ab761b9f0" = { ip = 192.168.1.1; port = 9000; };
     };
   };
 }
