@@ -33,23 +33,9 @@
       inputs.pre-commit-hooks.flakeModule
     ];
 
-    perSystem = { config, lib, pkgs, ... }: {
+    perSystem = { config, lib, ... }: {
       devShells = {
-        pre-commit =
-          let
-            gitExe = lib.getExe pkgs.git;
-          in
-          pkgs.mkShell {
-            shellHook = ''
-              ${config.pre-commit.installationScript}
-            
-              hooksPath=$(${gitExe} config --local core.hooksPath)
-              if [ "$hooksPath" == "../.git/hooks" ]; then
-                  ${gitExe} config --local core.hooksPath ".git/hooks"
-                  echo "Replaced core.hooksPath with \".git/hooks\""
-              fi
-            '';
-          };
+        pre-commit = config.pre-commit.devShell;
       };
 
       treefmt.config = {

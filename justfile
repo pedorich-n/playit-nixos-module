@@ -1,8 +1,8 @@
 check-fmt:
-    cd ./dev; nix flake check
+    nix flake check ./dev
 
 fmt:
     cd ./dev; nix fmt ../
 
 generate-pre-commit:
-    cd ./dev; nix develop .#pre-commit
+    nix develop ./dev#pre-commit
