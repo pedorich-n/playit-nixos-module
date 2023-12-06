@@ -8,4 +8,5 @@ craneLibWithOverride.buildPackage {
   src = craneLib.cleanCargoSource playit-agent-source;
   strictDeps = true;
   doCheck = false;
+  meta.mainProgram = "playit-cli";
 }
