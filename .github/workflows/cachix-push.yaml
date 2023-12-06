@@ -1,5 +1,6 @@
 name: "Push Playit Binary to Cachix"
 on:
+  workflow_dispatch:
   push:
     branches:
       - main
