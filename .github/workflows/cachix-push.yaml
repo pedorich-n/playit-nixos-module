@@ -1,0 +1,19 @@
+name: "Push Playit Binary to Cachix"
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "flake.lock"
+
+jobs:
+  upload-cachix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: cachix/install-nix-action@v24
+      - uses: cachix/cachix-action@v12
+        with:
+          name: playit-nixos-module
+          authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
+      - run: nix build .#playit-cli --print-out-paths
