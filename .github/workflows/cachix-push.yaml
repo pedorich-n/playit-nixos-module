@@ -17,4 +17,4 @@ jobs:
         with:
           name: playit-nixos-module
           authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
-      - run: nix build .#playit-cli --print-out-paths
+      - run: nix build .#playit-cli --accept-flake-config --print-out-paths

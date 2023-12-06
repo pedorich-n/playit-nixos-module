@@ -9,12 +9,19 @@ This NixOS module provides two things:
 
 Example `flake.nix`:
 ```Nix
-inputs = {
+{
+  # Optional step. Binary cache to improve the build time
+  nixConfig = {
+    extra-substituters = [ "https://playit-nixos-module.cachix.org" ];
+    extra-trusted-public-keys = [ "playit-nixos-module.cachix.org-1:22hBXWXBbd/7o1cOnh+p0hpFUVk9lPdRLX3p5YSfRz4=" ];
+  };
+
+  inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     playit-nixos-module.url = "github:pedorich-n/playit-nixos-module";
-}
+  }
 
-output = { nixpkgs, playit-nixos-module }: {
+  output = { nixpkgs, playit-nixos-module }: {
     nixosConfigurations = {
       example = nixpkgs.lib.nixosSystem {
         system = "x86_64-linux";
@@ -24,6 +31,7 @@ output = { nixpkgs, playit-nixos-module }: {
         ];
       };
     };
+  }
 }
 ```
 
