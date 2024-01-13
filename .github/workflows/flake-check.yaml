@@ -1,0 +1,8 @@
+name: nix-flake-check
+on: push
+
+jobs:
+  nix-flake-check:
+    uses: pedorich-n/github-workflows/.github/workflows/flake-check.yaml@main
+    secrets:
+      ssh_key: ${{ secrets.SSH_ACTION_KEY }}
