@@ -1,4 +1,4 @@
-name: update-flake-lock
+name: Update flake.lock
 on:
   workflow_dispatch: # allows manual triggering
   schedule:
@@ -9,4 +9,3 @@ jobs:
     uses: pedorich-n/github-workflows/.github/workflows/update-flake-lock.yaml@main
     secrets:
       gh_access_token: ${{ secrets.GH_ACCESS_TOKEN }}
-      ssh_key: ${{ secrets.SSH_ACTION_KEY }}
