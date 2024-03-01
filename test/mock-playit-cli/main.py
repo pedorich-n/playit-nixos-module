@@ -1,7 +1,15 @@
 import argparse
 import json
 import re
+import signal
+import sys
 import time
+
+
+def signal_handler(signal, frame):
+    sys.exit(0)
+
+signal.signal(signal.SIGINT, signal_handler)
 
 
 def main():
@@ -20,4 +28,5 @@ def main():
         json_object = json.dumps(args_dict, indent=4, sort_keys=True)
         file.write(json_object)
 
-    time.sleep(60)
+    while True:
+        time.sleep(1)

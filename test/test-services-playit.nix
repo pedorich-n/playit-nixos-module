@@ -41,7 +41,7 @@ pkgs.nixosTest {
     with subtest("multiple-overrides"):
       machine1.wait_for_unit("playit.service")
 
-      machine1.systemctl("status playit.service")
+      machine1.wait_for_file("${resultFileLocation}")
 
       machine1.copy_from_host("${./snapshots/multiple-overrides.json}", "${expectedFileLocation}")
       machine1.succeed("diff ${expectedFileLocation} ${resultFileLocation}")
@@ -51,7 +51,7 @@ pkgs.nixosTest {
     with subtest("no-overrides"):
       machine2.wait_for_unit("playit.service")
 
-      machine2.systemctl("status playit.service")
+      machine2.wait_for_file("${resultFileLocation}")
 
       machine2.copy_from_host("${./snapshots/no-overrides.json}", "${expectedFileLocation}")
       machine2.succeed("diff ${expectedFileLocation} ${resultFileLocation}")
