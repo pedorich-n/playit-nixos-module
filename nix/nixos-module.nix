@@ -114,12 +114,11 @@ in
         ProtectKernelTunables = true;
         ProtectKernelLogs = true;
         ProtectControlGroups = true;
-        ProtectSystem = "strict";
         RestrictSUIDSGID = true;
         RestrictNamespaces = true;
         ProtectClock = true;
         NoNewPrivileges = true;
-        CapabilityBoundingSet = [ "" ];
+        CapabilityBoundingSet = [ ];
       };
     };
   };
