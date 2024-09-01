@@ -19,9 +19,6 @@
 
     crane = {
       url = "github:ipetkov/crane";
-      inputs = {
-        nixpkgs.follows = "nixpkgs";
-      };
     };
 
     playit-agent-source = {
