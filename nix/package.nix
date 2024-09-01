@@ -10,15 +10,4 @@ craneLibWithOverride.buildPackage {
 
   strictDeps = true;
   doCheck = false;
-
-  nativeBuildInputs = [
-    pkgs.pkg-config
-  ];
-  buildInputs = [
-    pkgs.openssl.dev
-  ];
-  env = {
-    # See: https://github.com/NixOS/nixpkgs/issues/303975
-    OPENSSL_NO_VENDOR = true;
-  };
 }
