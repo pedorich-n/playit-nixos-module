@@ -1,12 +1,18 @@
-{ pkgs, playit-agent-source, craneLib, ... }:
+{ playit-agent-source, rustPlatform, lib, ... }:
 let
-  toolchain = pkgs.rust-bin.stable.latest.default;
-  craneLibWithOverride = craneLib.overrideToolchain toolchain;
+  src = lib.cleanSource playit-agent-source;
+  cargoLock = "${src}/Cargo.lock";
+  cargoToml = lib.importTOML "${src}/Cargo.toml";
 in
-craneLibWithOverride.buildPackage {
-  pname = "playit-cli";
+rustPlatform.buildRustPackage {
+  pname = "playit-agent";
   meta.mainProgram = "playit-cli";
-  src = craneLib.cleanCargoSource playit-agent-source;
+  inherit (cargoToml.workspace.package) version;
+
+  inherit src;
+  cargoLock = {
+    lockFile = cargoLock;
+  };
 
   strictDeps = true;
   doCheck = false;
