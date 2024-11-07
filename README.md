@@ -2,8 +2,8 @@
 
 This NixOS module provides two things:
 
-- packaged [playit-agent](https://github.com/playit-cloud/playit-agent) using [crane](https://crane.dev/)
-- a service defintion to run `playit-agent` as systemd service
+- packaged [playit-agent](https://github.com/playit-cloud/playit-agent)
+- a service definition to run `playit-agent` as systemd service
 
 ## Usage
 
