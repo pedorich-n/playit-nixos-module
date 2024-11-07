@@ -45,10 +45,6 @@ Setup service:
     user = "playit";
     group = "playit";
     secretPath = config.age.secrets.playit-secret.path;
-    runOverride = {
-      "890e3610-26cd-4e2b-b161-7cf0e4f69148".port = 8080;
-      "177485db-47aa-4fa9-9ccf-411ab761b9f0" = { ip = 192.168.1.1; port = 9000; };
-    };
   };
 }
 ```
@@ -58,21 +54,13 @@ Setup service:
 Run
 
 ```Bash
-nix run github:pedorich-n/playit-nixos-module#playit-cli -- claim generate
+nix run github:pedorich-n/playit-nixos-module#playit-cli -- start
 ```
 
-This will output a code, use this code in next command
+The program will prompt the link to the website to claim the agent. Follow the instructions on the website.
 
-```Bash
-nix run github:pedorich-n/playit-nixos-module#playit-cli -- claim exchange <code>
-```
-
-Follow the link and approve the agent on the website. After that `plait-cli` will output a secret to the console.
-Use this secret to create a TOML file like
-
-```TOML
-secret_key = "<secret>"
-```
+After the agent is claimed it will start running and serving the tunnels. You can exit the program at this point.
+The TOML file containing the secret for newly claimed agent should be at `~/.config/playit_gg/playit.toml`. This file needs to be passed as `secretPath`.
 
 It is recommended to use secret manager like [agenix](https://github.com/ryantm/agenix) or [sops](https://github.com/Mic92/sops-nix) to avoid having exposed secret in `/nix/store`
 
