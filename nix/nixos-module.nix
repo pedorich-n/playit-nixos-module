@@ -1,71 +1,31 @@
 { config, lib, ... }:
-with lib;
 let
   cfg = config.services.playit;
-
-  localMappingType = with types; submodule {
-    options = {
-      ip = mkOption {
-        type = nullOr str;
-        description = "Local IP to route traffic to";
-        default = null;
-      };
-      port = mkOption {
-        type = nullOr port;
-        description = "Local port to route traffic to";
-        default = null;
-      };
-    };
-  };
-
-  maybeRunOverride =
-    let
-      ipPortString = { ip, port }:
-        if (ip == null && port == null) then throw "IP and Port can't both be empty!"
-        else concatStringsSep ":" (filter (x: x != null && x != "") [ ip (toString port) ]);
-
-      maybeOverridesList = lists.optionals (cfg.runOverride != { }) (attrsets.foldlAttrs
-        (acc: tunnelUUID: localMapping: acc ++ [ "${tunnelUUID}=${ipPortString localMapping}" ]) [ ]
-        cfg.runOverride);
-    in
-    strings.optionalString (maybeOverridesList != [ ]) ''run ${concatStringsSep "," maybeOverridesList}'';
 in
 {
   ###### interface
   options = {
     services.playit = {
-      enable = mkEnableOption "Playit Service";
+      enable = lib.mkEnableOption "Playit Service";
 
-      package = mkOption {
-        type = types.package;
-        description = "Playit binary to run";
+      package = lib.mkOption {
+        type = lib.types.package;
+        description = "playit binary to run";
       };
 
-      runOverride = mkOption {
-        type = with types; attrsOf localMappingType;
-        description = "Attrset of local overrides. Name should be tunnel's UUID.";
-        default = { };
-        example = literalExpression ''
-          runOverride = {
-            "890e3610-26cd-4e2b-b161-7cf0e4f69148".port = 8080;
-            "177485db-47aa-4fa9-9ccf-411ab761b9f0" = { ip = 192.168.1.1; port = 9000; };
-          };
-        '';
-      };
-
-      secretPath = mkOption {
-        type = types.path;
+      secretPath = lib.mkOption {
+        type = lib.types.path;
         description = "Path to TOML file containing secret";
       };
 
-      user = mkOption {
-        type = types.str;
+      user = lib.mkOption {
+        type = lib.types.str;
         default = "playit";
         description = "User account under which Playit runs.";
       };
 
-      group = mkOption {
-        type = types.str;
+      group = lib.mkOption {
+        type = lib.types.str;
         default = "playit";
         description = "Group under which Playit runs.";
       };
@@ -73,8 +33,8 @@ in
   };
 
   ###### implementation
-  config = mkIf cfg.enable {
-    users.users = optionalAttrs (cfg.user == "playit") {
+  config = lib.mkIf cfg.enable {
+    users.users = lib.optionalAttrs (cfg.user == "playit") {
       playit = {
         isSystemUser = true;
         group = "playit";
@@ -82,7 +42,7 @@ in
       };
     };
 
-    users.groups = optionalAttrs (cfg.group == "playit") {
+    users.groups = lib.optionalAttrs (cfg.group == "playit") {
       playit = { };
     };
 
@@ -94,7 +54,7 @@ in
       after = [ "network.target" "systemd-resolved.service" ];
 
       script = ''
-        ${getExe cfg.package} --secret_wait --secret_path ${cfg.secretPath} ${maybeRunOverride}
+        ${lib.getExe cfg.package} --stdout --secret_wait --secret_path ${cfg.secretPath} start
       '';
 
       serviceConfig = {

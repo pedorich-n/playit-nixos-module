@@ -10,17 +10,6 @@
     systems.url = "github:nix-systems/default";
     flake-parts.url = "github:hercules-ci/flake-parts";
 
-    rust-overlay = {
-      url = "github:oxalica/rust-overlay";
-      inputs = {
-        nixpkgs.follows = "nixpkgs";
-      };
-    };
-
-    crane = {
-      url = "github:ipetkov/crane";
-    };
-
     playit-agent-source = {
       url = "github:playit-cloud/playit-agent";
       flake = false;
@@ -30,27 +19,18 @@
   outputs = inputs@{ flake-parts, ... }: flake-parts.lib.mkFlake { inherit inputs; } ({ moduleWithSystem, ... }: {
     systems = import inputs.systems;
 
-    perSystem = { config, pkgs, system, ... }:
-      let
-        craneLib = inputs.crane.mkLib pkgs;
-      in
-      {
-        _module.args.pkgs = import inputs.nixpkgs {
-          inherit system;
-          overlays = [ inputs.rust-overlay.overlays.default ];
-        };
-
-        packages = {
-          playit-cli = pkgs.callPackage ./nix/package.nix { inherit (inputs) playit-agent-source; inherit craneLib; };
-          default = config.packages.playit-cli;
-          docs = pkgs.callPackage ./nix/docs.nix { };
-          # mock = pkgs.callPackage ./test/mock-playit-cli { };
-        };
-
-        checks = {
-          test-services-playit = pkgs.callPackage ./test/test-services-playit.nix { };
-        };
+    perSystem = { config, pkgs, ... }: {
+      packages = {
+        playit-cli = pkgs.callPackage ./nix/package.nix { inherit (inputs) playit-agent-source; };
+        default = config.packages.playit-cli;
+        docs = pkgs.callPackage ./nix/docs.nix { };
+        # mock = pkgs.callPackage ./test/mock-playit-cli.nix { };
       };
+
+      checks = {
+        test-services-playit = import ./test/test-services-playit.nix { inherit pkgs; };
+      };
+    };
 
     flake = {
       nixosModules.default = moduleWithSystem (perSystem@{ config }: { ... }: {
