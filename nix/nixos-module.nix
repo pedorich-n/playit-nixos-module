@@ -10,7 +10,7 @@ in
 
       package = lib.mkOption {
         type = lib.types.package;
-        description = "playit-cli binary to run";
+        description = "playit binary to run";
       };
 
       secretPath = lib.mkOption {
@@ -54,7 +54,7 @@ in
       after = [ "network.target" "systemd-resolved.service" ];
 
       script = ''
-        ${lib.getExe cfg.package} --secret_wait --secret_path ${cfg.secretPath} --stdout start
+        ${lib.getExe cfg.package} --stdout --secret_wait --secret_path ${cfg.secretPath} start
       '';
 
       serviceConfig = {

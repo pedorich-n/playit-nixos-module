@@ -15,5 +15,6 @@ rustPlatform.buildRustPackage {
   };
 
   strictDeps = true;
+  # Requires internet access
   doCheck = false;
 }
