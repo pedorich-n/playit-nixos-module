@@ -19,7 +19,7 @@
   outputs = inputs@{ flake-parts, ... }: flake-parts.lib.mkFlake { inherit inputs; } ({ moduleWithSystem, ... }: {
     systems = import inputs.systems;
 
-    perSystem = { config, pkgs, system, ... }: {
+    perSystem = { config, pkgs, ... }: {
       packages = {
         playit-cli = pkgs.callPackage ./nix/package.nix { inherit (inputs) playit-agent-source; };
         default = config.packages.playit-cli;
