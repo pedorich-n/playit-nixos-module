@@ -3,6 +3,14 @@ let
   cfg = config.services.playit;
 in
 {
+  imports = [
+    (lib.modules.mkRemovedOptionModule [ "services" "playit" "runOverride" ] ''
+      Playit service now uses `start` instead of `run` command to run `playit-cli`. 
+      It's no longer possible to specify the port overrides from the agent's side.
+      Please visit the repository for an updated manual on how to setup an agent and ip/port mappings.
+    '')
+  ];
+
   ###### interface
   options = {
     services.playit = {

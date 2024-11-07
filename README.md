@@ -49,6 +49,10 @@ Setup service:
 }
 ```
 
+### Additional settings
+
+You can configure the port mappings in the [Tunnels](https://playit.gg/account/tunnels) section of the website.
+
 ### Obtaining a secret
 
 Run

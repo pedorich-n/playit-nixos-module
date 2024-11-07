@@ -8,8 +8,7 @@ let
   };
 
   withCommonConfig = config: {
-    imports = [ commonConfig ];
-    inherit config;
+    imports = [ commonConfig config ];
   };
 in
 pkgs.nixosTest {
