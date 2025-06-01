@@ -20,11 +20,11 @@
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1746904237,
-        "narHash": "sha256-3e+AVBczosP5dCLQmMoMEogM57gmZ2qrVSrmq9aResQ=",
+        "lastModified": 1748693115,
+        "narHash": "sha256-StSrWhklmDuXT93yc3GrTlb0cKSS0agTAxMGjLKAsY8=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "d89fc19e405cb2d55ce7cc114356846a0ee5e956",
+        "rev": "910796cabe436259a29a72e8d3f5e180fc6dfacc",
         "type": "github"
       },
       "original": {
@@ -52,11 +52,11 @@
     "playit-agent-source": {
       "flake": false,
       "locked": {
-        "lastModified": 1739837864,
-        "narHash": "sha256-mLQmfWgwQ4I3ZnIWrA4dhi5fvGYz4xNZZlJ3nvP4V1Q=",
+        "lastModified": 1747600774,
+        "narHash": "sha256-S/fid/MlC7eNVmaDxuLNAtbw2tIkeE5jx86MVycY/I0=",
         "owner": "playit-cloud",
         "repo": "playit-agent",
-        "rev": "c6e6b6f9075f0614a00de002eda9ec0d720cc900",
+        "rev": "4198b257f5e43e6319f086d99bd08a4357d5bd9b",
         "type": "github"
       },
       "original": {
