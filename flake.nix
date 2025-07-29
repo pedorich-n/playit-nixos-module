@@ -5,7 +5,7 @@
   };
 
   inputs = {
-    self.submodules = true;
+    #self.submodules = true;
 
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
 
