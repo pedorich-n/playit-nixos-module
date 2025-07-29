@@ -5,6 +5,8 @@
   };
 
   inputs = {
+    self.submodules = true;
+
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
 
     systems.url = "github:nix-systems/default";
@@ -21,6 +23,7 @@
 
     imports = [
       flake-parts.flakeModules.easyOverlay
+      flake-parts.flakeModules.partitions
     ];
 
     perSystem = { config, pkgs, ... }: {
@@ -45,6 +48,28 @@
         imports = [ ./nix/nixos-module.nix ];
         services.playit.package = perSystem.config.packages.playit-cli;
       });
+    };
+
+    partitions.dev = {
+      extraInputsFlake = ./dev;
+      module = {
+        imports = [
+          ./dev/flake-module.nix
+        ];
+
+        perSystem = {
+          treefmt.config = {
+            projectRoot = ./.;
+          };
+        };
+
+      };
+    };
+
+    partitionedAttrs = {
+      devShells = "dev";
+      checks = "dev";
+      formatter = "dev";
     };
   });
 }
