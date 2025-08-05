@@ -18,58 +18,9 @@
     };
   };
 
-  outputs = inputs@{ flake-parts, ... }: flake-parts.lib.mkFlake { inherit inputs; } ({ moduleWithSystem, ... }: {
+  outputs = inputs@{ flake-parts, ... }: flake-parts.lib.mkFlake { inherit inputs; } ({ lib, ... }: {
     systems = import inputs.systems;
 
-    imports = [
-      flake-parts.flakeModules.easyOverlay
-      flake-parts.flakeModules.partitions
-    ];
-
-    perSystem = { config, pkgs, ... }: {
-      packages = {
-        playit-cli = pkgs.callPackage ./nix/package.nix { inherit (inputs) playit-agent-source; };
-        default = config.packages.playit-cli;
-        docs = pkgs.callPackage ./nix/docs.nix { };
-        # mock = pkgs.callPackage ./test/mock-playit-cli.nix { };
-      };
-
-      overlayAttrs = {
-        inherit (config.packages) playit-cli;
-      };
-
-      checks = {
-        test-services-playit = import ./test/test-services-playit.nix { inherit pkgs; };
-      };
-    };
-
-    flake = {
-      nixosModules.default = moduleWithSystem (perSystem@{ config }: { ... }: {
-        imports = [ ./nix/nixos-module.nix ];
-        services.playit.package = perSystem.config.packages.playit-cli;
-      });
-    };
-
-    partitions.dev = {
-      extraInputsFlake = ./dev;
-      module = {
-        imports = [
-          ./dev/flake-module.nix
-        ];
-
-        perSystem = {
-          treefmt.config = {
-            projectRoot = ./.;
-          };
-        };
-
-      };
-    };
-
-    partitionedAttrs = {
-      devShells = "dev";
-      checks = "dev";
-      formatter = "dev";
-    };
+    imports = lib.filesystem.listFilesRecursive ./flake-parts;
   });
 }
