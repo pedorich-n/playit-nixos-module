@@ -18,7 +18,7 @@
     };
   };
 
-  outputs = inputs@{ flake-parts, ... }: flake-parts.lib.mkFlake { inherit inputs; } ({ moduleWithSystem, ... }: {
+  outputs = inputs@{ flake-parts, ... }: flake-parts.lib.mkFlake { inherit inputs; } ({ config, moduleWithSystem, ... }: {
     systems = import inputs.systems;
 
     imports = [
@@ -52,14 +52,18 @@
 
     partitions.dev = {
       extraInputsFlake = ./dev;
+      extraInputs = { inherit (config.partitions.dev.extraInputs.nix-dev-flake.inputs) treefmt-nix pre-commit-hooks; };
       module = {
         imports = [
-          ./dev/flake-module.nix
+          "${config.partitions.dev.extraInputs.nix-dev-flake}/flake-module.nix"
         ];
 
         perSystem = {
           treefmt.config = {
             projectRoot = ./.;
+          };
+          pre-commit.settings = {
+            rootSrc = ./.;
           };
         };
 
