@@ -1,7 +1,9 @@
 {
   nixConfig = {
     extra-substituters = [ "https://playit-nixos-module.cachix.org" ];
-    extra-trusted-public-keys = [ "playit-nixos-module.cachix.org-1:22hBXWXBbd/7o1cOnh+p0hpFUVk9lPdRLX3p5YSfRz4=" ];
+    extra-trusted-public-keys = [
+      "playit-nixos-module.cachix.org-1:22hBXWXBbd/7o1cOnh+p0hpFUVk9lPdRLX3p5YSfRz4="
+    ];
   };
 
   inputs = {
@@ -18,9 +20,14 @@
     };
   };
 
-  outputs = inputs@{ flake-parts, ... }: flake-parts.lib.mkFlake { inherit inputs; } ({ lib, ... }: {
-    systems = import inputs.systems;
+  outputs =
+    inputs@{ flake-parts, ... }:
+    flake-parts.lib.mkFlake { inherit inputs; } (
+      { lib, ... }:
+      {
+        systems = import inputs.systems;
 
-    imports = lib.filesystem.listFilesRecursive ./flake-parts;
-  });
+        imports = lib.filesystem.listFilesRecursive ./flake-parts;
+      }
+    );
 }

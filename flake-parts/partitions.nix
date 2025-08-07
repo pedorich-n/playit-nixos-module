@@ -1,11 +1,14 @@
-{ inputs, config, ... }: {
+{ inputs, config, ... }:
+{
   imports = [
     inputs.flake-parts.flakeModules.partitions
   ];
 
   partitions.dev = {
     extraInputsFlake = ../dev;
-    extraInputs = { inherit (config.partitions.dev.extraInputs.nix-dev-flake.inputs) treefmt-nix pre-commit-hooks; };
+    extraInputs = {
+      inherit (config.partitions.dev.extraInputs.nix-dev-flake.inputs) treefmt-nix pre-commit-hooks;
+    };
     module = {
       imports = [
         "${config.partitions.dev.extraInputs.nix-dev-flake}/flake-module.nix"
