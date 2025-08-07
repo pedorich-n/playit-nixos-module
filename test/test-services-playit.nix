@@ -1,14 +1,19 @@
 { pkgs, ... }:
 let
-  commonConfig = { pkgs, ... }: {
-    imports = [ ../nix/nixos-module.nix ];
-    services.playit.package = pkgs.callPackage ./mock-playit-cli.nix { };
+  commonConfig =
+    { pkgs, ... }:
+    {
+      imports = [ ../nix/nixos-module.nix ];
+      services.playit.package = pkgs.callPackage ./mock-playit-cli.nix { };
 
-    environment.systemPackages = [ pkgs.curl ];
-  };
+      environment.systemPackages = [ pkgs.curl ];
+    };
 
   withCommonConfig = config: {
-    imports = [ commonConfig config ];
+    imports = [
+      commonConfig
+      config
+    ];
   };
 in
 pkgs.nixosTest {

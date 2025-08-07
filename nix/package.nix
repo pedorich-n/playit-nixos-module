@@ -1,4 +1,9 @@
-{ playit-agent-source, rustPlatform, lib, ... }:
+{
+  playit-agent-source,
+  rustPlatform,
+  lib,
+  ...
+}:
 let
   src = lib.cleanSource playit-agent-source;
   cargoLock = "${src}/Cargo.lock";

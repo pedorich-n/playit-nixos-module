@@ -59,7 +59,10 @@ in
     systemd.services.playit = {
       description = "Playit.gg agent";
       wantedBy = [ "multi-user.target" ];
-      after = [ "network.target" "systemd-resolved.service" ];
+      after = [
+        "network.target"
+        "systemd-resolved.service"
+      ];
 
       script = ''
         ${lib.getExe cfg.package} --stdout --secret_wait --secret_path ${cfg.secretPath} start
@@ -72,7 +75,10 @@ in
         StateDirectory = "playit";
 
         # Hardening
-        RestrictAddressFamilies = [ "AF_INET" "AF_INET6" ];
+        RestrictAddressFamilies = [
+          "AF_INET"
+          "AF_INET6"
+        ];
         DeviceAllow = [ "" ];
         LockPersonality = true;
         PrivateDevices = true;
