@@ -65,11 +65,11 @@
         "treefmt-nix": "treefmt-nix"
       },
       "locked": {
-        "lastModified": 1754490758,
-        "narHash": "sha256-6I6GuxigFVfL0KB1IFjH9qhCRWuXaMDK7z5UkEgEUtE=",
+        "lastModified": 1755004623,
+        "narHash": "sha256-WG82tzKnjN8l4uWV/kwgXKAbzGb/NKhPSBgvzKOCOfg=",
         "owner": "pedorich-n",
         "repo": "nix-dev-flake",
-        "rev": "8783f202fde6706f37dcb93dfa40e05327569301",
+        "rev": "57ae208f98061ca89cb65ed53ebe1735d0f3d43b",
         "type": "github"
       },
       "original": {
