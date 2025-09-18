@@ -2,7 +2,7 @@
 {
   flake = {
     nixosModules.default = moduleWithSystem (
-      perSystem:
+      perSystem@{ config }: # NOTE: only explicitly named parameters will be in perSystem
       { ... }:
       {
         imports = [ ../nix/nixos-module.nix ];
