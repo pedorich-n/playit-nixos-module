@@ -16,7 +16,7 @@ let
     ];
   };
 in
-pkgs.nixosTest {
+pkgs.testers.nixosTest {
   name = "test-services-playit";
   nodes = {
     machine1 = withCommonConfig {
