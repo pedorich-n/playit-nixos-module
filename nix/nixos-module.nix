@@ -65,14 +65,22 @@ in
       after = [ "network-online.target" ];
 
       script = ''
-        ${lib.getExe cfg.package} --stdout --secret_wait --secret_path ${cfg.secretPath} start
+        ${lib.getExe cfg.package} --stdout --secret_wait --secret_path "''${SECRET_PATH}" start
       '';
+
+      environment = {
+        SECRET_PATH = "%d/secret";
+      };
 
       serviceConfig = {
         User = cfg.user;
         Group = cfg.group;
         Restart = "on-failure";
         StateDirectory = "playit";
+
+        LoadCredential = [
+          "secret:${cfg.secretPath}"
+        ];
 
         # Hardening
         RestrictAddressFamilies = [
