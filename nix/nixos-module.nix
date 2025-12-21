@@ -77,13 +77,14 @@ in
         ProtectKernelTunables = true;
         ProtectKernelLogs = true;
         ProtectControlGroups = true;
+        ProtectSystem = "strict";
+        ProtectHome = "read-only";
         RestrictSUIDSGID = true;
         RestrictNamespaces = true;
+        RestrictRealtime = true;
         ProtectClock = true;
         NoNewPrivileges = true;
         CapabilityBoundingSet = [ ];
-        ProtectSystem = "strict";
-        ProtectHome = "read-only";
       };
     };
   };
