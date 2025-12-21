@@ -10,6 +10,12 @@ in
       It's no longer possible to specify the port overrides from the agent's side.
       Please visit the repository for an updated manual on how to setup an agent and ip/port mappings.
     '')
+    (lib.modules.mkRemovedOptionModule [ "services" "playit" "user" ] ''
+      The `user` option has been removed. Playit service now runs under a dynamic user for better security.
+    '')
+    (lib.modules.mkRemovedOptionModule [ "services" "playit" "group" ] ''
+      The `group` option has been removed. Playit service now runs under a dynamic group for better security.
+    '')
   ];
 
   ###### interface
@@ -27,35 +33,11 @@ in
         type = lib.types.path;
         description = "Path to TOML file containing secret";
       };
-
-      user = lib.mkOption {
-        type = lib.types.str;
-        default = "playit";
-        description = "User account under which Playit runs.";
-      };
-
-      group = lib.mkOption {
-        type = lib.types.str;
-        default = "playit";
-        description = "Group under which Playit runs.";
-      };
     };
   };
 
   ###### implementation
   config = lib.mkIf cfg.enable {
-    users.users = lib.optionalAttrs (cfg.user == "playit") {
-      playit = {
-        isSystemUser = true;
-        group = "playit";
-        description = "Playit daemon user";
-      };
-    };
-
-    users.groups = lib.optionalAttrs (cfg.group == "playit") {
-      playit = { };
-    };
-
     environment.systemPackages = [ cfg.package ];
 
     systemd.services.playit = {
@@ -73,8 +55,6 @@ in
       };
 
       serviceConfig = {
-        User = cfg.user;
-        Group = cfg.group;
         Restart = "on-failure";
         StateDirectory = "playit";
 
@@ -92,6 +72,7 @@ in
         PrivateDevices = true;
         PrivateTmp = true;
         PrivateUsers = true;
+        DynamicUser = true;
         ProtectKernelModules = true;
         ProtectKernelTunables = true;
         ProtectKernelLogs = true;
@@ -101,6 +82,8 @@ in
         ProtectClock = true;
         NoNewPrivileges = true;
         CapabilityBoundingSet = [ ];
+        ProtectSystem = "strict";
+        ProtectHome = "read-only";
       };
     };
   };
