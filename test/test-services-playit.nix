@@ -1,10 +1,14 @@
 { pkgs, ... }:
 let
   commonConfig =
-    { pkgs, ... }:
+    { pkgs, lib, ... }:
+    let
+      package = pkgs.callPackage ./mock-playit-cli.nix { };
+    in
     {
-      imports = [ ../nix/nixos-module.nix ];
-      services.playit.package = pkgs.callPackage ./mock-playit-cli.nix { };
+      imports = [
+        (lib.modules.importApply ../nix/nixos-module.nix { inherit package; })
+      ];
 
       environment.systemPackages = [ pkgs.curl ];
     };

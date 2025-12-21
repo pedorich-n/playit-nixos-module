@@ -1,20 +1,30 @@
-{ lib, pkgs }:
+{
+  localFlake,
+  lib,
+  pkgs,
+  ...
+}:
 let
   optionsFor =
-    module:
+    modules:
     let
       rawOptions =
         (lib.evalModules {
           modules = [
-            { _module.check = false; }
-            module
-          ];
+            {
+              _module = {
+                check = false;
+                args.system = pkgs.stdenv.hostPlatform.system;
+              };
+            }
+          ]
+          ++ modules;
         }).options;
     in
     builtins.removeAttrs rawOptions [ "_module" ];
 
   moduleDoc = pkgs.nixosOptionsDoc {
-    options = optionsFor ./nixos-module.nix;
+    options = optionsFor (lib.attrValues localFlake.nixosModules);
     transformOptions =
       opt:
       opt
