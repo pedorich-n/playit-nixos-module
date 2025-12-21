@@ -1,3 +1,4 @@
+{ package }:
 { config, lib, ... }:
 let
   cfg = config.services.playit;
@@ -18,6 +19,7 @@ in
 
       package = lib.mkOption {
         type = lib.types.package;
+        default = package;
         description = "playit binary to run";
       };
 
@@ -59,10 +61,8 @@ in
     systemd.services.playit = {
       description = "Playit.gg agent";
       wantedBy = [ "multi-user.target" ];
-      after = [
-        "network.target"
-        "systemd-resolved.service"
-      ];
+      wants = [ "network-online.target" ];
+      after = [ "network-online.target" ];
 
       script = ''
         ${lib.getExe cfg.package} --stdout --secret_wait --secret_path ${cfg.secretPath} start
