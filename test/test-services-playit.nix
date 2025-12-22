@@ -1,16 +1,23 @@
 { pkgs, ... }:
 let
+  secretValue = "XX_very_secret_value_XX";
+
   commonConfig =
     { pkgs, lib, ... }:
-    let
-      package = pkgs.callPackage ./mock-playit-cli.nix { };
-    in
     {
       imports = [
-        (lib.modules.importApply ../nix/nixos-module.nix { inherit package; })
+        (lib.modules.importApply ../nix/nixos-module.nix { package = pkgs.callPackage ./mock-playit-cli.nix { }; })
       ];
 
-      environment.systemPackages = [ pkgs.curl ];
+      environment = {
+        systemPackages = [ pkgs.curl ];
+        etc."secret/path" = {
+          user = "nobody";
+          group = "nogroup";
+          mode = "0400";
+          text = secretValue;
+        };
+      };
     };
 
   withCommonConfig = config: {
@@ -26,7 +33,7 @@ pkgs.testers.nixosTest {
     machine1 = withCommonConfig {
       services.playit = {
         enable = true;
-        secretPath = "/secret/path";
+        secretPath = "/etc/secret/path";
       };
     };
   };
@@ -34,8 +41,16 @@ pkgs.testers.nixosTest {
   testScript = ''
     start_all()
 
+    with subtest("secret reader"):
+      machine1.wait_for_unit("network-online.target")
+
+      machine1.wait_for_unit("playit.service")
+      _, out = machine1.execute("journalctl --unit playit.service --output cat --no-pager --grep 'Secret value:' | tail -n1")
+      secret_log = out.strip()
+      assert secret_log == "Secret value: ${secretValue}", f"Expected secret value not found in logs, got: {secret_log}"
+
     with subtest("running"):
-      machine1.wait_for_unit("network.target")
+      machine1.wait_for_unit("network-online.target")
 
       machine1.wait_for_unit("playit.service")
       machine1.wait_for_open_port(9213)
