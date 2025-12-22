@@ -10,6 +10,12 @@ in
       It's no longer possible to specify the port overrides from the agent's side.
       Please visit the repository for an updated manual on how to setup an agent and ip/port mappings.
     '')
+    (lib.modules.mkRemovedOptionModule [ "services" "playit" "user" ] ''
+      The `user` option has been removed. Playit service now runs under a dynamic user for better security.
+    '')
+    (lib.modules.mkRemovedOptionModule [ "services" "playit" "group" ] ''
+      The `group` option has been removed. Playit service now runs under a dynamic group for better security.
+    '')
   ];
 
   ###### interface
@@ -27,35 +33,11 @@ in
         type = lib.types.path;
         description = "Path to TOML file containing secret";
       };
-
-      user = lib.mkOption {
-        type = lib.types.str;
-        default = "playit";
-        description = "User account under which Playit runs.";
-      };
-
-      group = lib.mkOption {
-        type = lib.types.str;
-        default = "playit";
-        description = "Group under which Playit runs.";
-      };
     };
   };
 
   ###### implementation
   config = lib.mkIf cfg.enable {
-    users.users = lib.optionalAttrs (cfg.user == "playit") {
-      playit = {
-        isSystemUser = true;
-        group = "playit";
-        description = "Playit daemon user";
-      };
-    };
-
-    users.groups = lib.optionalAttrs (cfg.group == "playit") {
-      playit = { };
-    };
-
     environment.systemPackages = [ cfg.package ];
 
     systemd.services.playit = {
@@ -65,14 +47,20 @@ in
       after = [ "network-online.target" ];
 
       script = ''
-        ${lib.getExe cfg.package} --stdout --secret_wait --secret_path ${cfg.secretPath} start
+        ${lib.getExe cfg.package} --stdout --secret_wait --secret_path "''${SECRET_PATH}" start
       '';
 
+      environment = {
+        SECRET_PATH = "%d/secret";
+      };
+
       serviceConfig = {
-        User = cfg.user;
-        Group = cfg.group;
         Restart = "on-failure";
         StateDirectory = "playit";
+
+        LoadCredential = [
+          "secret:${cfg.secretPath}"
+        ];
 
         # Hardening
         RestrictAddressFamilies = [
@@ -84,12 +72,16 @@ in
         PrivateDevices = true;
         PrivateTmp = true;
         PrivateUsers = true;
+        DynamicUser = true;
         ProtectKernelModules = true;
         ProtectKernelTunables = true;
         ProtectKernelLogs = true;
         ProtectControlGroups = true;
+        ProtectSystem = "strict";
+        ProtectHome = "read-only";
         RestrictSUIDSGID = true;
         RestrictNamespaces = true;
+        RestrictRealtime = true;
         ProtectClock = true;
         NoNewPrivileges = true;
         CapabilityBoundingSet = [ ];
