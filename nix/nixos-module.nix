@@ -46,15 +46,12 @@ in
       wants = [ "network-online.target" ];
       after = [ "network-online.target" ];
 
-      script = ''
-        ${lib.getExe cfg.package} --stdout --secret_wait --secret_path "''${SECRET_PATH}" start
-      '';
-
       environment = {
         SECRET_PATH = "%d/secret";
       };
 
       serviceConfig = {
+        ExecStart = ''${lib.getExe cfg.package} --stdout --secret_wait --secret_path "''${SECRET_PATH}" start'';
         Restart = "on-failure";
         StateDirectory = "playit";
 
