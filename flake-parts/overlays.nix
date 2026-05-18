@@ -1,14 +1,20 @@
-{ inputs, ... }:
+{
+  inputs,
+  ...
+}:
 {
   imports = [
     inputs.flake-parts.flakeModules.easyOverlay
   ];
 
   perSystem =
-    { config, ... }:
+    {
+      config,
+      ...
+    }:
     {
       overlayAttrs = {
-        inherit (config.packages) playit-cli;
+        inherit (config.packages) playit;
       };
     };
 }

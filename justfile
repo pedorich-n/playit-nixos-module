@@ -17,4 +17,4 @@ generate-pre-commit:
     nix develop "{{ justfile_directory() + '#pre-commit' }}"
 
 build-playit:
-    nix build "{{ justfile_directory() + '#playit-cli' }}"
+    nix build "{{ justfile_directory() + '#playit' }}"

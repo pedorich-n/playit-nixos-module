@@ -1,12 +1,16 @@
-{ package }:
-{ config, lib, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 let
   cfg = config.services.playit;
 in
 {
   imports = [
     (lib.modules.mkRemovedOptionModule [ "services" "playit" "runOverride" ] ''
-      Playit service now uses `start` instead of `run` command to run `playit-cli`. 
+      Playit service now uses `start` instead of `run` command to run `playit-cli`.
       It's no longer possible to specify the port overrides from the agent's side.
       Please visit the repository for an updated manual on how to setup an agent and ip/port mappings.
     '')
@@ -23,11 +27,7 @@ in
     services.playit = {
       enable = lib.mkEnableOption "Playit Service";
 
-      package = lib.mkOption {
-        type = lib.types.package;
-        default = package;
-        description = "playit binary to run";
-      };
+      package = lib.mkPackageOption pkgs "playit" { };
 
       secretPath = lib.mkOption {
         type = lib.types.path;

@@ -1,9 +1,9 @@
 {
-  pkgs,
+  writeShellScriptBin,
+  simple-http-server,
   lib,
-  ...
 }:
-pkgs.writeShellScriptBin "mock-playit-cli" ''
+writeShellScriptBin "mock-playit-cli" ''
   SECRET_PATH=""
   while [[ $# -gt 0 ]]; do
       case "$1" in
@@ -20,5 +20,5 @@ pkgs.writeShellScriptBin "mock-playit-cli" ''
    SECRET_VALUE=$(cat "$SECRET_PATH")
    echo "Secret value: $SECRET_VALUE"
 
-  ${lib.getExe pkgs.simple-http-server} --port 9213
+  ${lib.getExe simple-http-server} --port 9213
 ''
