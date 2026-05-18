@@ -1,7 +1,15 @@
-{ self, inputs, ... }:
+{
+  self,
+  inputs,
+  ...
+}:
 {
   perSystem =
-    { config, pkgs, ... }:
+    {
+      config,
+      pkgs,
+      ...
+    }:
     {
       packages = {
         playit-cli = pkgs.callPackage ../nix/package.nix { inherit (inputs) playit-agent-source; };

@@ -1,4 +1,8 @@
-{ inputs, config, ... }:
+{
+  inputs,
+  config,
+  ...
+}:
 {
   imports = [
     inputs.flake-parts.flakeModules.partitions

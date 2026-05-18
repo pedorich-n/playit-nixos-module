@@ -1,4 +1,8 @@
-{ flake-parts-lib, moduleWithSystem, ... }:
+{
+  flake-parts-lib,
+  moduleWithSystem,
+  ...
+}:
 {
   flake = {
     nixosModules.default = moduleWithSystem (
