@@ -10,7 +10,7 @@ let
   cargoToml = lib.importTOML "${src}/Cargo.toml";
 in
 rustPlatform.buildRustPackage {
-  pname = "playit-agent";
+  pname = "playit";
   meta.mainProgram = "playit-cli";
   inherit (cargoToml.workspace.package) version;
 

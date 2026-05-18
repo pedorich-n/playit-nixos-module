@@ -3,7 +3,7 @@
 This NixOS module provides two things:
 
 - packaged [playit-agent](https://github.com/playit-cloud/playit-agent)
-- a service definition to run `playit-agent` as systemd service
+- a service definition to run `playit` as systemd service
 
 ## Usage
 
@@ -56,7 +56,7 @@ You can configure the port mappings in the [Tunnels](https://playit.gg/account/t
 Run
 
 ```Bash
-nix run github:pedorich-n/playit-nixos-module#playit-cli -- start
+nix run github:pedorich-n/playit-nixos-module#playit -- start
 ```
 
 The program will prompt the link to the website to claim the agent. Follow the instructions on the website.

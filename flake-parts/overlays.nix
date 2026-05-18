@@ -14,7 +14,7 @@
     }:
     {
       overlayAttrs = {
-        inherit (config.packages) playit-cli;
+        inherit (config.packages) playit;
       };
     };
 }
