@@ -51,9 +51,10 @@ in
       };
 
       serviceConfig = {
-        ExecStart = ''${lib.getExe cfg.package} --stdout --secret_wait --secret_path "''${SECRET_PATH}" start'';
+        ExecStart = ''${lib.getExe' cfg.package "playitd"} --secret-path "''${SECRET_PATH}" --log-path "''${LOGS_DIRECTORY}/playit.log"'';
         Restart = "on-failure";
         StateDirectory = "playit";
+        LogsDirectory = "playit";
 
         LoadCredential = [
           "secret:${cfg.secretPath}"
@@ -84,5 +85,16 @@ in
         CapabilityBoundingSet = [ ];
       };
     };
+
+    # Mirroring https://github.com/playit-cloud/playit-agent/blob/0ac19b418e6c97238958351b1403d9145d1aced4/linux/logrotate.conf
+    services.logrotate.settings.playit = {
+      enable = true;
+      files = "/var/log/playit/playit.log";
+      frequency = "daily";
+      rotate = 3;
+      copytruncate = true;
+      compress = true;
+    };
   };
+
 }
