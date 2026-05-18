@@ -21,12 +21,6 @@
       perSystem = {
         treefmt.config = {
           projectRoot = ../.;
-
-          settings = {
-            formatter.deadnix.excludes = [
-              "flake-parts/nixosModules.nix"
-            ];
-          };
         };
         pre-commit.settings = {
           rootSrc = ../.;

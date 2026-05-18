@@ -1,13 +1,25 @@
-{ pkgs, ... }:
+{
+  flake,
+  pkgs,
+  ...
+}:
 let
   secretValue = "XX_very_secret_value_XX";
 
   commonConfig =
-    { pkgs, lib, ... }:
+    {
+      pkgs,
+      ...
+    }:
     {
       imports = [
-        (lib.modules.importApply ../nix/nixos-module.nix { package = pkgs.callPackage ./mock-playit-cli.nix { }; })
+        flake.nixosModules.default
       ];
+
+      services.playit = {
+        enable = true;
+        package = pkgs.callPackage ./mock-playit-cli.nix { };
+      };
 
       environment = {
         systemPackages = [ pkgs.curl ];

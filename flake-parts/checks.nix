@@ -1,4 +1,8 @@
 {
+  self,
+  ...
+}:
+{
   perSystem =
     {
       pkgs,
@@ -6,7 +10,7 @@
     }:
     {
       checks = {
-        test-services-playit = import ../test/test-services-playit.nix { inherit pkgs; };
+        test-services-playit = pkgs.callPackage ../test/test-services-playit.nix { flake = self; };
       };
     };
 }

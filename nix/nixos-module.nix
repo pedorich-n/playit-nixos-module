@@ -1,8 +1,6 @@
 {
-  package,
-}:
-{
   config,
+  pkgs,
   lib,
   ...
 }:
@@ -29,11 +27,7 @@ in
     services.playit = {
       enable = lib.mkEnableOption "Playit Service";
 
-      package = lib.mkOption {
-        type = lib.types.package;
-        default = package;
-        description = "playit binary to run";
-      };
+      package = lib.mkPackageOption pkgs "playit" { };
 
       secretPath = lib.mkOption {
         type = lib.types.path;
