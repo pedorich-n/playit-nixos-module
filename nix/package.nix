@@ -1,16 +1,11 @@
 {
   socketPath ? null,
-  playit-agent-source,
+  fetchFromGitHub,
   rustPlatform,
   makeWrapper,
   lib,
-  ...
 }:
 let
-  src = lib.cleanSource playit-agent-source;
-  cargoLock = "${src}/Cargo.lock";
-  cargoToml = lib.importTOML "${src}/Cargo.toml";
-
   # Windows-specific packages
   packagesToExclude = [
     "playitd-service"
@@ -18,15 +13,18 @@ let
     "playitd-tray"
   ];
 in
-rustPlatform.buildRustPackage {
+rustPlatform.buildRustPackage (finalAttrs: {
   pname = "playit";
-  meta.mainProgram = "playit-cli";
-  inherit (cargoToml.workspace.package) version;
+  version = "1.0.3";
 
-  inherit src;
-  cargoLock = {
-    lockFile = cargoLock;
+  src = fetchFromGitHub {
+    owner = "playit-cloud";
+    repo = "playit-agent";
+    rev = "v${finalAttrs.version}";
+    sha256 = "sha256-fmyiOr5TP5PNt3FCSR+E7atoDVCocLiHgxhP/FQwl9g=";
   };
+
+  cargoHash = "sha256-gbXqg13n8UeGsGeuXsYFcVfBeCtiHUh2eMjiswRuLSE=";
 
   cargoBuildFlags = [
     "--workspace"
@@ -46,4 +44,14 @@ rustPlatform.buildRustPackage {
   strictDeps = true;
   # Requires internet access
   doCheck = false;
-}
+
+  meta = {
+    mainProgram = "playit-cli";
+    description = "Playit allows you to expose game servers running on your local machine to the internet";
+    homepage = "https://github.com/playit-cloud/playit-agent";
+    changelog = "https://github.com/playit-cloud/playit-agent/releases/tag/v${finalAttrs.version}";
+    license = lib.licenses.bsd2;
+    platforms = lib.platforms.linux ++ lib.platforms.darwin;
+    sourceProvenance = lib.sourceTypes.fromSource;
+  };
+})
