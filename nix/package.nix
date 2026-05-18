@@ -8,6 +8,13 @@ let
   src = lib.cleanSource playit-agent-source;
   cargoLock = "${src}/Cargo.lock";
   cargoToml = lib.importTOML "${src}/Cargo.toml";
+
+  # Windows-specific packages
+  packagesToExclude = [
+    "playitd-service"
+    "playitd-windows-setup"
+    "playitd-tray"
+  ];
 in
 rustPlatform.buildRustPackage {
   pname = "playit";
@@ -18,6 +25,11 @@ rustPlatform.buildRustPackage {
   cargoLock = {
     lockFile = cargoLock;
   };
+
+  cargoBuildFlags = [
+    "--workspace"
+  ]
+  ++ lib.map (pkg: "--exclude ${pkg}") packagesToExclude;
 
   strictDeps = true;
   # Requires internet access
