@@ -1,6 +1,7 @@
 {
   playit-agent-source,
   rustPlatform,
+  makeWrapper,
   lib,
   ...
 }:
@@ -30,6 +31,15 @@ rustPlatform.buildRustPackage {
     "--workspace"
   ]
   ++ lib.map (pkg: "--exclude ${pkg}") packagesToExclude;
+
+  nativeBuildInputs = [
+    makeWrapper
+  ];
+
+  postInstall = ''
+    wrapProgram ${placeholder "out"}/bin/playit-cli \
+      --add-flag '--socket-path=/var/run/playit/playit.sock'
+  '';
 
   strictDeps = true;
   # Requires internet access
