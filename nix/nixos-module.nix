@@ -6,6 +6,7 @@
 }:
 let
   cfg = config.services.playit;
+  defaultSocketPath = "/run/playit/playit.sock";
 in
 {
   imports = [
@@ -22,7 +23,6 @@ in
     '')
   ];
 
-  ###### interface
   options = {
     services.playit = {
       enable = lib.mkEnableOption "Playit Service";
@@ -33,12 +33,25 @@ in
         type = lib.types.path;
         description = "Path to TOML file containing secret";
       };
+
+      socketPath = lib.mkOption {
+        type = lib.types.path;
+        default = defaultSocketPath;
+        description = "Path to the IPC socket that playit-cli will use to connect to the playitd.";
+      };
+
+      finalPackage = lib.mkOption {
+        type = lib.types.package;
+        readOnly = true;
+        internal = true;
+        description = "Final playit package with socket path override applied if needed";
+        default = if cfg.socketPath != defaultSocketPath then package.override { inherit (cfg) socketPath; } else package;
+      };
     };
   };
 
-  ###### implementation
   config = lib.mkIf cfg.enable {
-    environment.systemPackages = [ cfg.package ];
+    environment.systemPackages = [ cfg.finalPackage ];
 
     systemd.services.playit = {
       description = "Playit.gg agent";
@@ -46,16 +59,12 @@ in
       wants = [ "network-online.target" ];
       after = [ "network-online.target" ];
 
-      environment = {
-        SECRET_PATH = "%d/secret";
-      };
-
       serviceConfig = {
         ExecStart = ''
-          ${lib.getExe' cfg.package "playitd"} \
-          --secret-path "''${SECRET_PATH}" \
-          --log-path "''${LOGS_DIRECTORY}/playit.log" \
-          --socket-path "''${RUNTIME_DIRECTORY}/playit.sock"
+          ${lib.getExe' cfg.finalPackage "playitd"} \
+            --secret-path "%d/secret" \
+            --log-path "''${LOGS_DIRECTORY}/playit.log" \
+            --socket-path "${cfg.socketPath}"
         '';
         Restart = "on-failure";
         StateDirectory = "playit";
@@ -68,6 +77,9 @@ in
         ];
 
         # Hardening
+        ReadWritePaths = [
+          (dirOf cfg.socketPath)
+        ];
         RestrictAddressFamilies = [
           "AF_INET"
           "AF_INET6"

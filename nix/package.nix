@@ -1,4 +1,5 @@
 {
+  socketPath ? null,
   playit-agent-source,
   rustPlatform,
   makeWrapper,
@@ -38,7 +39,8 @@ rustPlatform.buildRustPackage {
 
   postInstall = ''
     wrapProgram ${placeholder "out"}/bin/playit-cli \
-      --add-flag '--socket-path=/var/run/playit/playit.sock'
+      --set-default PLAYIT_SOCKET_PATH "${if socketPath != null then socketPath else "/run/playit/playit.sock"}" \
+      --add-flags '--socket-path="''${PLAYIT_SOCKET_PATH}"'
   '';
 
   strictDeps = true;
