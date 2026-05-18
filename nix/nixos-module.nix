@@ -51,10 +51,17 @@ in
       };
 
       serviceConfig = {
-        ExecStart = ''${lib.getExe' cfg.package "playitd"} --secret-path "''${SECRET_PATH}" --log-path "''${LOGS_DIRECTORY}/playit.log"'';
+        ExecStart = ''
+          ${lib.getExe' cfg.package "playitd"} \
+          --secret-path "''${SECRET_PATH}" \
+          --log-path "''${LOGS_DIRECTORY}/playit.log" \
+          --socket-path "''${RUNTIME_DIRECTORY}/playit.sock"
+        '';
         Restart = "on-failure";
         StateDirectory = "playit";
         LogsDirectory = "playit";
+        RuntimeDirectory = "playit";
+        RuntimeDirectoryMode = "0755";
 
         LoadCredential = [
           "secret:${cfg.secretPath}"
@@ -64,6 +71,7 @@ in
         RestrictAddressFamilies = [
           "AF_INET"
           "AF_INET6"
+          "AF_UNIX"
         ];
         DeviceAllow = [ "" ];
         LockPersonality = true;
