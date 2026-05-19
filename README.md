@@ -3,7 +3,7 @@
 This NixOS module provides two things:
 
 - packaged [playit-agent](https://github.com/playit-cloud/playit-agent)
-- a service definition to run `playit` as systemd service
+- a service definition to run `playitd` as systemd service
 
 ## Usage
 

@@ -8,7 +8,6 @@
 let
   # Windows-specific packages
   packagesToExclude = [
-    "playitd-service"
     "playitd-windows-setup"
     "playitd-tray"
   ];
