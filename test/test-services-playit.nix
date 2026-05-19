@@ -18,7 +18,7 @@ let
 
       services.playit = {
         enable = true;
-        package = pkgs.callPackage ./mock-playit-cli.nix { };
+        package = pkgs.callPackage ./mock-playitd.nix { };
       };
 
       environment = {
@@ -46,6 +46,7 @@ pkgs.testers.nixosTest {
       services.playit = {
         enable = true;
         secretPath = "/etc/secret/path";
+        socketPath = "/var/run/playit/playit.sock";
       };
     };
   };
@@ -60,6 +61,12 @@ pkgs.testers.nixosTest {
       _, out = machine1.execute("journalctl --unit playit.service --output cat --no-pager --grep 'Secret value:' | tail -n1")
       secret_log = out.strip()
       assert secret_log == "Secret value: ${secretValue}", f"Expected secret value not found in logs, got: {secret_log}"
+
+    with subtest("socket creation"):
+      machine1.wait_for_unit("network-online.target")
+
+      machine1.wait_for_unit("playit.service")
+      machine1.wait_for_file("/var/run/playit/playit.sock")
 
     with subtest("running"):
       machine1.wait_for_unit("network-online.target")

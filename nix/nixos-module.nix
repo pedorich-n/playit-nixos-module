@@ -45,7 +45,7 @@ in
         readOnly = true;
         internal = true;
         description = "Final playit package with socket path override applied if needed";
-        default = if cfg.socketPath != defaultSocketPath then package.override { inherit (cfg) socketPath; } else package;
+        default = if cfg.socketPath != defaultSocketPath then cfg.package.override { cliSocketPath = cfg.socketPath; } else cfg.package;
       };
     };
   };

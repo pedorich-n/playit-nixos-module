@@ -1,5 +1,5 @@
 {
-  socketPath ? null,
+  cliSocketPath ? null,
   fetchFromGitHub,
   rustPlatform,
   makeWrapper,
@@ -37,7 +37,7 @@ rustPlatform.buildRustPackage (finalAttrs: {
 
   postInstall = ''
     wrapProgram ${placeholder "out"}/bin/playit-cli \
-      --set-default PLAYIT_SOCKET_PATH "${if socketPath != null then socketPath else "/run/playit/playit.sock"}" \
+      --set-default PLAYIT_SOCKET_PATH "${if cliSocketPath != null then cliSocketPath else "/run/playit/playit.sock"}" \
       --add-flags '--socket-path="''${PLAYIT_SOCKET_PATH}"'
   '';
 
