@@ -93,7 +93,6 @@ in
           (lib.escapeShellArg cfg.socketPath)
         ];
         Restart = "on-failure";
-        StateDirectory = "playit";
         LogsDirectory = "playit";
         RuntimeDirectory = "playit";
         RuntimeDirectoryMode = "0755";
