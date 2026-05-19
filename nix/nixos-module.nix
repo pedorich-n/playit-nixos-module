@@ -31,13 +31,36 @@ in
 
       secretPath = lib.mkOption {
         type = lib.types.path;
-        description = "Path to TOML file containing secret";
+        example = lib.literalExpression "/etc/playit/secret.toml";
+        description = ''
+          Path to a TOML file containing the playit agent secret.
+          Loaded via systemd's `LoadCredential` directive, so the file permissions can be tightened to `0400` and owned by any user.
+        '';
       };
 
       socketPath = lib.mkOption {
         type = lib.types.path;
         default = defaultSocketPath;
-        description = "Path to the IPC socket that playit-cli will use to connect to the playitd.";
+        example = lib.literalExpression "/run/playit/playit.sock";
+        description = ''
+          Path to the IPC socket that `playit-cli` will use to connect to `playitd`.
+
+          ::: {.note}
+          If using a non-default socket path, ensure its parent directory is accessible to the service (it is added to `ReadWritePaths` automatically).
+          :::
+        '';
+      };
+
+      logrotate = lib.mkOption {
+        type = lib.types.bool;
+        default = true;
+        description = ''
+          When enabled, creates a logrotate rule for playit logs.
+
+          ::: {.note}
+          You must explicitly enable `services.logrotate` for this to work.
+          :::
+        '';
       };
 
       finalPackage = lib.mkOption {
@@ -60,12 +83,15 @@ in
       after = [ "network-online.target" ];
 
       serviceConfig = {
-        ExecStart = ''
-          ${lib.getExe' cfg.finalPackage "playitd"} \
-            --secret-path "%d/secret" \
-            --log-path "''${LOGS_DIRECTORY}/playit.log" \
-            --socket-path "${cfg.socketPath}"
-        '';
+        ExecStart = lib.concatStringsSep " " [
+          (lib.getExe' cfg.finalPackage "playitd")
+          "--secret-path"
+          "%d/secret"
+          "--log-path"
+          "\"\${LOGS_DIRECTORY}/playit.log\""
+          "--socket-path"
+          (lib.escapeShellArg cfg.socketPath)
+        ];
         Restart = "on-failure";
         StateDirectory = "playit";
         LogsDirectory = "playit";
@@ -106,14 +132,16 @@ in
       };
     };
 
-    # Mirroring https://github.com/playit-cloud/playit-agent/blob/0ac19b418e6c97238958351b1403d9145d1aced4/linux/logrotate.conf
-    services.logrotate.settings.playit = {
-      enable = true;
-      files = "/var/log/playit/playit.log";
-      frequency = "daily";
-      rotate = 3;
-      copytruncate = true;
-      compress = true;
+    services.logrotate.settings = lib.mkIf cfg.logrotate {
+      # Mirroring https://github.com/playit-cloud/playit-agent/blob/0ac19b418e6c97238958351b1403d9145d1aced4/linux/logrotate.conf
+      playit = {
+        enable = true;
+        files = "/var/log/playit/playit.log";
+        frequency = "daily";
+        rotate = 3;
+        copytruncate = true;
+        compress = true;
+      };
     };
   };
 
