@@ -52,6 +52,6 @@ rustPlatform.buildRustPackage (finalAttrs: {
     changelog = "https://github.com/playit-cloud/playit-agent/releases/tag/v${finalAttrs.version}";
     license = lib.licenses.bsd2;
     platforms = lib.platforms.linux ++ lib.platforms.darwin;
-    sourceProvenance = lib.sourceTypes.fromSource;
+    sourceProvenance = [ lib.sourceTypes.fromSource ];
   };
 })
