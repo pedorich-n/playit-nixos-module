@@ -49,27 +49,10 @@
         "type": "github"
       }
     },
-    "playit-agent-source": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1779051690,
-        "narHash": "sha256-fmyiOr5TP5PNt3FCSR+E7atoDVCocLiHgxhP/FQwl9g=",
-        "owner": "playit-cloud",
-        "repo": "playit-agent",
-        "rev": "0ac19b418e6c97238958351b1403d9145d1aced4",
-        "type": "github"
-      },
-      "original": {
-        "owner": "playit-cloud",
-        "repo": "playit-agent",
-        "type": "github"
-      }
-    },
     "root": {
       "inputs": {
         "flake-parts": "flake-parts",
         "nixpkgs": "nixpkgs",
-        "playit-agent-source": "playit-agent-source",
         "systems": "systems"
       }
     },
