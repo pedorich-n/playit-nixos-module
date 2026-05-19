@@ -140,6 +140,7 @@ in
         rotate = 3;
         copytruncate = true;
         compress = true;
+        notifempty = true;
       };
     };
   };
