@@ -1,6 +1,5 @@
 {
   self,
-  inputs,
   ...
 }:
 {
@@ -12,7 +11,7 @@
     }:
     {
       packages = {
-        playit = pkgs.callPackage ../nix/package.nix { inherit (inputs) playit-agent-source; };
+        playit = pkgs.callPackage ../nix/package.nix { };
         default = config.packages.playit;
         docs = pkgs.callPackage ../nix/docs.nix { localFlake = self; };
         # mock = pkgs.callPackage ../test/mock-playit-cli.nix { };

@@ -13,11 +13,6 @@
 
     systems.url = "github:nix-systems/default";
     flake-parts.url = "github:hercules-ci/flake-parts";
-
-    playit-agent-source = {
-      url = "github:playit-cloud/playit-agent";
-      flake = false;
-    };
   };
 
   outputs =

@@ -6,6 +6,7 @@
 }:
 let
   cfg = config.services.playit;
+  defaultSocketPath = "/run/playit/playit.sock";
 in
 {
   imports = [
@@ -22,7 +23,6 @@ in
     '')
   ];
 
-  ###### interface
   options = {
     services.playit = {
       enable = lib.mkEnableOption "Playit Service";
@@ -31,14 +31,50 @@ in
 
       secretPath = lib.mkOption {
         type = lib.types.path;
-        description = "Path to TOML file containing secret";
+        example = lib.literalExpression "/etc/playit/secret.toml";
+        description = ''
+          Path to a TOML file containing the playit agent secret.
+          Loaded via systemd's `LoadCredential` directive, so the file permissions can be tightened to `0400` and owned by any user.
+        '';
+      };
+
+      socketPath = lib.mkOption {
+        type = lib.types.path;
+        default = defaultSocketPath;
+        example = lib.literalExpression "/run/playit/playit.sock";
+        description = ''
+          Path to the IPC socket that `playit-cli` will use to connect to `playitd`.
+
+          ::: {.note}
+          If using a non-default socket path, ensure its parent directory is accessible to the service (it is added to `ReadWritePaths` automatically).
+          :::
+        '';
+      };
+
+      logrotate = lib.mkOption {
+        type = lib.types.bool;
+        default = true;
+        description = ''
+          When enabled, creates a logrotate rule for playit logs.
+
+          ::: {.note}
+          You must explicitly enable `services.logrotate` for this to work.
+          :::
+        '';
+      };
+
+      finalPackage = lib.mkOption {
+        type = lib.types.package;
+        readOnly = true;
+        internal = true;
+        description = "Final playit package with socket path override applied if needed";
+        default = if cfg.socketPath != defaultSocketPath then cfg.package.override { cliSocketPath = cfg.socketPath; } else cfg.package;
       };
     };
   };
 
-  ###### implementation
   config = lib.mkIf cfg.enable {
-    environment.systemPackages = [ cfg.package ];
+    environment.systemPackages = [ cfg.finalPackage ];
 
     systemd.services.playit = {
       description = "Playit.gg agent";
@@ -46,23 +82,33 @@ in
       wants = [ "network-online.target" ];
       after = [ "network-online.target" ];
 
-      environment = {
-        SECRET_PATH = "%d/secret";
-      };
-
       serviceConfig = {
-        ExecStart = ''${lib.getExe cfg.package} --stdout --secret_wait --secret_path "''${SECRET_PATH}" start'';
+        ExecStart = lib.concatStringsSep " " [
+          (lib.getExe' cfg.finalPackage "playitd")
+          "--secret-path"
+          "%d/secret"
+          "--log-path"
+          "\"\${LOGS_DIRECTORY}/playit.log\""
+          "--socket-path"
+          (lib.escapeShellArg cfg.socketPath)
+        ];
         Restart = "on-failure";
-        StateDirectory = "playit";
+        LogsDirectory = "playit";
+        RuntimeDirectory = "playit";
+        RuntimeDirectoryMode = "0755";
 
         LoadCredential = [
           "secret:${cfg.secretPath}"
         ];
 
         # Hardening
+        ReadWritePaths = [
+          (dirOf cfg.socketPath)
+        ];
         RestrictAddressFamilies = [
           "AF_INET"
           "AF_INET6"
+          "AF_UNIX"
         ];
         DeviceAllow = [ "" ];
         LockPersonality = true;
@@ -84,5 +130,19 @@ in
         CapabilityBoundingSet = [ ];
       };
     };
+
+    services.logrotate.settings = lib.mkIf cfg.logrotate {
+      # Mirroring https://github.com/playit-cloud/playit-agent/blob/0ac19b418e6c97238958351b1403d9145d1aced4/linux/logrotate.conf
+      playit = {
+        enable = true;
+        files = "/var/log/playit/playit.log";
+        frequency = "daily";
+        rotate = 3;
+        copytruncate = true;
+        compress = true;
+        notifempty = true;
+      };
+    };
   };
+
 }
