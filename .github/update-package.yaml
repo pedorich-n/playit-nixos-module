@@ -1,0 +1,36 @@
+name: Update package sources
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 10 1 * *"
+
+jobs:
+  update-packages:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Setup job
+        uses: pedorich-n/github-workflows/.github/actions/setup-nix-job@4574905ea0c10728187de51f08d8729574413932 # main
+
+      - name: Update package sources
+        run: nix run nixpkgs#nix-update -- --flake playit
+
+      - name: Check for changes
+        id: git-check
+        shell: bash
+        run: |
+          git diff --quiet || echo "changes_detected=true" >> "$GITHUB_OUTPUT"
+
+      - name: Create Pull Request
+        if: steps.git-check.outputs.changes_detected
+        uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8
+        with:
+          commit-message: "Update package sources"
+          title: "Update package sources"
+          branch: "update_package"
+          labels: |
+            dependencies
+            automated
