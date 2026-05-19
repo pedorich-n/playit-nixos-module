@@ -55,14 +55,34 @@ You can configure the port mappings in the [Tunnels](https://playit.gg/account/t
 
 Run
 
-```Bash
-nix run github:pedorich-n/playit-nixos-module#playit -- start
+```bash
+❯ nix run github:pedorich-n/playit-nixos-module#playit -- claim generate
 ```
 
-The program will prompt the link to the website to claim the agent. Follow the instructions on the website.
+copy the generated claim code and run
 
-After the agent is claimed it will start running and serving the tunnels. You can exit the program at this point.
-The TOML file containing the secret for newly claimed agent should be at `~/.config/playit_gg/playit.toml`. This file needs to be passed as `secretPath`.
+```bash
+❯ nix run github:pedorich-n/playit-nixos-module#playit -- claim exchange <claim_code>
+```
+
+Follow the instructions on the screen, and approve new agent via browser.
+
+After the agent is claimed it will output its secret to the console. It will look something like this:
+
+```
+Open this link to finish setting up playit:
+https://playit.gg/claim/XXXXXXXXXX
+Program approved. Finishing setup...
+74f8XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX6509
+```
+
+Create a TOML file with the following structure:
+
+```toml
+secret_key = "74f8XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX6509"
+```
+
+This file needs to be passed to `services.playit.secretPath`.
 
 It is recommended to use secret manager like [agenix](https://github.com/ryantm/agenix) or [sops](https://github.com/Mic92/sops-nix) to avoid having exposed secret in `/nix/store`
 
