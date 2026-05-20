@@ -13,7 +13,7 @@ jobs:
       pull-requests: write
     steps:
       - name: Setup job
-        uses: pedorich-n/github-workflows/.github/actions/setup-nix-job@4574905ea0c10728187de51f08d8729574413932 # main
+        uses: pedorich-n/github-workflows/.github/actions/setup-nix-job@cf613deb566fa8765012e4de2af9eacf72874da2 # main
 
       - name: Update package sources
         run: nix run nixpkgs#nix-update -- --flake playit
@@ -26,7 +26,7 @@ jobs:
 
       - name: Get Github App info
         id: app-auth
-        uses: pedorich-n/github-workflows/.github/actions/app-token@app-token-action
+        uses: pedorich-n/github-workflows/.github/actions/app-token@cf613deb566fa8765012e4de2af9eacf72874da2 # main
         with:
           client-id: ${{ vars.APP_CLIENT_ID }}
           private-key: ${{ secrets.APP_PRIVATE_KEY }}
