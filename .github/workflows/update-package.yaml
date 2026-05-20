@@ -6,14 +6,14 @@ on:
     - cron: "0 10 1 * *"
 
 jobs:
-  update-packages:
+  update-package:
     runs-on: ubuntu-latest
     permissions:
       contents: write
       pull-requests: write
     steps:
       - name: Setup job
-        uses: pedorich-n/github-workflows/.github/actions/setup-nix-job@4574905ea0c10728187de51f08d8729574413932 # main
+        uses: pedorich-n/github-workflows/.github/actions/setup-nix-job@cf613deb566fa8765012e4de2af9eacf72874da2 # main
 
       - name: Update package sources
         run: nix run nixpkgs#nix-update -- --flake playit
@@ -24,10 +24,19 @@ jobs:
         run: |
           git diff --quiet || echo "changes_detected=true" >> "$GITHUB_OUTPUT"
 
+      - name: Get Github App info
+        id: app-auth
+        uses: pedorich-n/github-workflows/.github/actions/app-token@cf613deb566fa8765012e4de2af9eacf72874da2 # main
+        with:
+          client-id: ${{ vars.APP_CLIENT_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+
       - name: Create Pull Request
         if: steps.git-check.outputs.changes_detected
         uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8
         with:
+          token: ${{ steps.app-auth.outputs.token }}
+          committer: ${{ steps.app-auth.outputs.committer }}
           commit-message: "Update package sources"
           title: "Update package sources"
           branch: "update_package"
