@@ -18,7 +18,7 @@ let
 
       services.playit = {
         enable = true;
-        package = pkgs.callPackage ./mock-playitd.nix { };
+        package = pkgs.callPackage ./mocks/playitd.nix { };
       };
 
       environment = {
