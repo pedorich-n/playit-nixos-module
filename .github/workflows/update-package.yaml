@@ -1,4 +1,4 @@
-name: Update package sources
+name: Update Packages' Sources
 
 on:
   workflow_dispatch:
@@ -6,40 +6,23 @@ on:
     - cron: "0 10 1 * *"
 
 jobs:
-  update-package:
+  update-packages:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      pull-requests: write
     steps:
-      - name: Setup job
-        uses: pedorich-n/github-workflows/.github/actions/setup-nix-job@cf613deb566fa8765012e4de2af9eacf72874da2 # main
-
-      - name: Update package sources
-        run: nix run nixpkgs#nix-update -- --flake playit
-
-      - name: Check for changes
-        id: git-check
-        shell: bash
-        run: |
-          git diff --quiet || echo "changes_detected=true" >> "$GITHUB_OUTPUT"
-
       - name: Get Github App info
-        id: app-auth
-        uses: pedorich-n/github-workflows/.github/actions/app-token@cf613deb566fa8765012e4de2af9eacf72874da2 # main
+        id: app_auth
+        uses: pedorich-n/github-workflows/.github/actions/app-token@ab0b55f0c919123865d500485c7a275c487e6466 # main
         with:
-          client-id: ${{ vars.APP_CLIENT_ID }}
-          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+          client_id: ${{ vars.APP_CLIENT_ID }}
+          private_key: ${{ secrets.APP_PRIVATE_KEY }}
 
-      - name: Create Pull Request
-        if: steps.git-check.outputs.changes_detected
-        uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8
+      - name: Setup job
+        uses: pedorich-n/github-workflows/.github/actions/setup-nix-job@ab0b55f0c919123865d500485c7a275c487e6466 # main
+
+      - name: Run nix-update
+        uses: pedorich-n/github-workflows/.github/actions/nix-update@ab0b55f0c919123865d500485c7a275c487e6466 # main
         with:
-          token: ${{ steps.app-auth.outputs.token }}
-          committer: ${{ steps.app-auth.outputs.committer }}
-          commit-message: "Update package sources"
-          title: "Update package sources"
-          branch: "update_package"
-          labels: |
-            dependencies
-            automated
+          token: ${{ steps.app_auth.outputs.token }}
+          committer: ${{ steps.app_auth.outputs.committer }}
+          author: ${{ steps.app_auth.outputs.committer }}
+          packages: playit
