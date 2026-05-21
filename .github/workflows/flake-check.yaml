@@ -3,4 +3,4 @@ on: push
 
 jobs:
   nix-flake-check:
-    uses: pedorich-n/github-workflows/.github/workflows/flake-check.yaml@cf613deb566fa8765012e4de2af9eacf72874da2 # main
+    uses: pedorich-n/github-workflows/.github/workflows/flake-check.yaml@ab0b55f0c919123865d500485c7a275c487e6466 # main
