@@ -21,6 +21,13 @@
       perSystem = {
         treefmt.config = {
           projectRoot = ../.;
+
+          settings = {
+            global.excludes = [
+              "docs/*"
+            ];
+          };
+
         };
         pre-commit.settings = {
           rootSrc = ../.;

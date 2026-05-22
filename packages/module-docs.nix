@@ -1,8 +1,8 @@
 {
   localFlake,
   lib,
-  pkgs,
-  ...
+  nixosOptionsDoc,
+  runCommand,
 }:
 let
   optionsFor =
@@ -14,7 +14,6 @@ let
             {
               _module = {
                 check = false;
-                args.system = pkgs.stdenv.hostPlatform.system;
               };
             }
           ]
@@ -23,7 +22,7 @@ let
     in
     builtins.removeAttrs rawOptions [ "_module" ];
 
-  moduleDoc = pkgs.nixosOptionsDoc {
+  moduleDoc = nixosOptionsDoc {
     options = optionsFor (lib.attrValues localFlake.nixosModules);
     transformOptions =
       opt:
@@ -34,23 +33,10 @@ let
       };
   };
 in
-pkgs.stdenvNoCC.mkDerivation (finalAttrs: {
-  src = ./.;
-  name = "playit-nixos-module.doc";
+runCommand "playit-nixos-module-doc" { } ''
+  target="$out/share/doc/nixos"
+  mkdir -p "$target"
 
-  nativeBuildInputs = with pkgs; [
-    less
-    glow
-  ];
-
-  installPhase = ''
-    mkdir -p $out/docs
-    cp ${moduleDoc.optionsCommonMark} $out/docs/module.md
-  '';
-
-  passthru.serve = pkgs.writeShellScriptBin "serve" ''
-    set -euo pipefail
-
-    ${pkgs.glow}/bin/glow -p ${finalAttrs.finalPackage.out}/docs/module.md
-  '';
-})
+  cp ${moduleDoc.optionsCommonMark} $target/module.md
+  cp ${moduleDoc.optionsJSON}/share/doc/nixos/options.json $target/module.json
+''
