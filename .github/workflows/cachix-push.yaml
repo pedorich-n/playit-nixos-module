@@ -6,7 +6,7 @@ on:
       - main
     paths:
       - "flake.lock"
-      - "nix/package.nix"
+      - "packages/playit.nix"
 
 jobs:
   upload-cachix:

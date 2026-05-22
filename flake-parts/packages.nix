@@ -11,10 +11,9 @@
     }:
     {
       packages = {
-        playit = pkgs.callPackage ../nix/package.nix { };
+        playit = pkgs.callPackage ../packages/playit.nix { };
         default = config.packages.playit;
-        docs = pkgs.callPackage ../nix/docs.nix { localFlake = self; };
-        # mock = pkgs.callPackage ../test/mock-playit-cli.nix { };
+        module-docs = pkgs.callPackage ../packages/module-docs.nix { localFlake = self; };
       };
     };
 }
