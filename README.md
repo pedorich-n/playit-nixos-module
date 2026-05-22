@@ -88,8 +88,4 @@ It is recommended to use secret manager like [agenix](https://github.com/ryantm/
 
 ### Documentation
 
-To see latest documentation run
-
-```Bash
-nix run github:pedorich-n/playit-nixos-module#docs.serve
-```
+Latest module documentation can be found in [docs](docs/module.md)
