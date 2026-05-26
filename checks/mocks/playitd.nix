@@ -15,17 +15,17 @@ writers.writePython3Bin "playitd"
     from pathlib import Path
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("--secret-path", required=True, type=Path)
-    parser.add_argument("--socket-path", default=None, type=Path)
-    parser.add_argument("--log-path", default=None, type=Path)
+    parser.add_argument("--secret-path", required=True)
+    parser.add_argument("--socket-path", default=None)
+    parser.add_argument("--log-path", default=None)
     args = parser.parse_args()
 
     if args.socket_path:
-        socket_path = args.socket_path
+        socket_path = Path(args.socket_path)
         socket_path.parent.mkdir(parents=True, exist_ok=True)
         socket_path.write_text("mock-playitd")
 
-    secret_value = args.secret_path.read_text()
+    secret_value = Path(args.secret_path).read_text()
     print(f"Secret value: {secret_value}", flush=True)
     print(f"playitd socket path: {args.socket_path}", flush=True)
     print("playt-cli overriden socket path: ${toString cliSocketPath}", flush=True)
