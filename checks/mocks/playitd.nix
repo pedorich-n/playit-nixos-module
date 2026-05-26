@@ -1,48 +1,35 @@
 {
   cliSocketPath ? null,
-  writeTextFile,
-  runtimeShell,
-  stdenv,
-  simple-http-server,
-  lib,
+  writers,
 }:
-writeTextFile {
-  name = "mock-playitd";
-  executable = true;
-  destination = "/bin/playitd";
-  text = ''
-    #!${runtimeShell}
+writers.writePython3Bin "playitd"
+  {
+    # Not the nix flake, but Python's flake8
+    flakeIgnore = [
+      "E501" # Line too long
+    ];
+  }
+  ''
+    import argparse
+    from http.server import HTTPServer, SimpleHTTPRequestHandler
+    from pathlib import Path
 
-    SECRET_PATH=""
-    SOCKET_PATH=""
-    while [[ $# -gt 0 ]]; do
-        case "$1" in
-            --secret-path) SECRET_PATH="$2"; shift 2;;
-            --socket-path) SOCKET_PATH="$2"; shift 2;;
-            *) shift;;
-        esac
-    done
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--secret-path", required=True, type=Path)
+    parser.add_argument("--socket-path", default=None, type=Path)
+    parser.add_argument("--log-path", default=None, type=Path)
+    args = parser.parse_args()
 
-    if [[ -z "$SECRET_PATH" ]]; then
-        echo "No secret path provided" >&2
-        exit 1
-    fi
+    if args.socket_path:
+        socket_path = args.socket_path
+        socket_path.parent.mkdir(parents=True, exist_ok=True)
+        socket_path.write_text("mock-playitd")
 
-    if [[ -n "$SOCKET_PATH" ]]; then
-        mkdir -p "$(dirname "$SOCKET_PATH")"
-        echo "mock-playitd" > "$SOCKET_PATH"
-    fi
+    secret_value = args.secret_path.read_text()
+    print(f"Secret value: {secret_value}", flush=True)
+    print(f"playitd socket path: {args.socket_path}", flush=True)
+    print("playt-cli overriden socket path: ${toString cliSocketPath}", flush=True)
+    print(f"Log path: {args.log_path}", flush=True)
 
-    SECRET_VALUE=$(cat "$SECRET_PATH")
-    echo "Secret value: $SECRET_VALUE"
-
-    echo "plyitd socket path: $SOCKET_PATH"
-    echo "playit-cli socket path: ${toString cliSocketPath}"
-
-    ${lib.getExe simple-http-server} --port 9213
-  '';
-
-  checkPhase = ''
-    ${stdenv.shellDryRun} "$target"
-  '';
-}
+    HTTPServer(("", 9213), SimpleHTTPRequestHandler).serve_forever()
+  ''
