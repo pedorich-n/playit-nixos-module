@@ -58,8 +58,7 @@ pkgs.testers.nixosTest {
       machine1.wait_for_unit("network-online.target")
 
       machine1.wait_for_unit("playit.service")
-      _, out = machine1.execute("journalctl --unit playit.service --output cat --no-pager --grep 'Secret value:' | tail -n1")
-      secret_log = out.strip()
+      secret_log = machine1.wait_until_succeeds("journalctl --unit playit.service --output cat --no-pager | grep 'Secret value:' | tail -n1").strip()
       assert secret_log == "Secret value: ${secretValue}", f"Expected secret value not found in logs, got: {secret_log}"
 
     with subtest("socket creation"):
