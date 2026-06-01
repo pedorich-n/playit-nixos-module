@@ -14,13 +14,13 @@ let
 in
 rustPlatform.buildRustPackage (finalAttrs: {
   pname = "playit";
-  version = "1.0.4";
+  version = "1.0.5";
 
   src = fetchFromGitHub {
     owner = "playit-cloud";
     repo = "playit-agent";
     rev = "v${finalAttrs.version}";
-    sha256 = "sha256-RtwKuMlBEspoq5mmOi6n69MAU5fu3zzllT81oLJJd1U=";
+    sha256 = "sha256-r0Rbdiv8vMXMwjsD/sRnrzT7BATheU7DJ1qgQWATAwM=";
   };
 
   cargoHash = "sha256-Wf8eJTSTAxo56t/ImRXzn7wl1mo4y4D/TQ5JHGoPCrc=";
