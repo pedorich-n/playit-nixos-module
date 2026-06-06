@@ -3,6 +3,7 @@
   fetchFromGitHub,
   rustPlatform,
   makeBinaryWrapper,
+  versionCheckHook,
   lib,
 }:
 let
@@ -39,6 +40,12 @@ rustPlatform.buildRustPackage (finalAttrs: {
       --set-default PLAYIT_SOCKET_PATH ${lib.escapeShellArg cliSocketPath} \
       --add-flags '--socket-path="''${PLAYIT_SOCKET_PATH}"'
   '';
+
+  nativeInstallCheckInputs = [
+    versionCheckHook
+  ];
+  doInstallCheck = true;
+  versionCheckProgramArg = "version";
 
   strictDeps = true;
   # Requires internet access
