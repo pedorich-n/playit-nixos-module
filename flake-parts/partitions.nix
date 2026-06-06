@@ -16,6 +16,7 @@
     module =
       {
         inputs,
+        lib,
         ...
       }:
       {
@@ -42,6 +43,10 @@
         flake.ghaMatrices = {
           checks = inputs.nix-github-actions.lib.mkGithubMatrix {
             inherit (config.flake) checks;
+          };
+
+          cache = inputs.nix-github-actions.lib.mkGithubMatrix {
+            checks = lib.mapAttrs (_system: packages: lib.filterAttrs (name: _package: name == "playit") packages) config.flake.packages;
           };
         };
       };
