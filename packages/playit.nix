@@ -3,6 +3,7 @@
   fetchFromGitHub,
   rustPlatform,
   makeBinaryWrapper,
+  versionCheckHook,
   lib,
 }:
 let
@@ -40,9 +41,14 @@ rustPlatform.buildRustPackage (finalAttrs: {
       --add-flags '--socket-path="''${PLAYIT_SOCKET_PATH}"'
   '';
 
+  nativeInstallCheckInputs = [
+    versionCheckHook
+  ];
+  doInstallCheck = true;
+  versionCheckProgramArg = "version";
+
   strictDeps = true;
-  # Requires internet access
-  doCheck = false;
+  doCheck = true;
 
   meta = {
     mainProgram = "playit-cli";
