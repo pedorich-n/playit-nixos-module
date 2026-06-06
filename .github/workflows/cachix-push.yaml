@@ -8,6 +8,9 @@ on:
       - "flake.lock"
       - "packages/playit.nix"
 
+permissions:
+  contents: read
+
 jobs:
   eval-matrix:
     runs-on: ubuntu-latest
@@ -21,7 +24,7 @@ jobs:
         id: eval-matrix
         shell: bash
         run: |
-          matrix=$(nix eval --accept-flake-config --json .#ghaMatrices.cache.matrix)
+          matrix=$(nix eval --json .#ghaMatrices.cache.matrix)
           echo "matrix=$matrix" >> "$GITHUB_OUTPUT"
 
   upload-cachix:
