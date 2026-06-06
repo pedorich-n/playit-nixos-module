@@ -2,7 +2,7 @@
   cliSocketPath ? "/run/playit/playit.sock",
   fetchFromGitHub,
   rustPlatform,
-  makeBinaryWrapper,
+  makeWrapper,
   versionCheckHook,
   lib,
 }:
@@ -32,7 +32,7 @@ rustPlatform.buildRustPackage (finalAttrs: {
   ++ lib.map (pkg: "--exclude ${pkg}") packagesToExclude;
 
   nativeBuildInputs = [
-    makeBinaryWrapper
+    makeWrapper
   ];
 
   postInstall = ''
