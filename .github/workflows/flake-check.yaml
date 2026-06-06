@@ -1,6 +1,9 @@
 name: Nix Flake Check
 on: push
 
+permissions:
+  contents: read
+
 jobs:
   nix-flake-check:
     uses: pedorich-n/github-workflows/.github/workflows/flake-check.yaml@394fb5dff4f8ee88f7fec2c55bb178875af055c5 # main

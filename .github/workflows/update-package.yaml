@@ -5,6 +5,9 @@ on:
   schedule:
     - cron: "0 10 1 * *"
 
+permissions:
+  contents: read
+
 jobs:
   update-packages:
     runs-on: ubuntu-latest
