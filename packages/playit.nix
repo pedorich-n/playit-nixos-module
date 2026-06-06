@@ -48,8 +48,7 @@ rustPlatform.buildRustPackage (finalAttrs: {
   versionCheckProgramArg = "version";
 
   strictDeps = true;
-  # Requires internet access
-  doCheck = false;
+  doCheck = true;
 
   meta = {
     mainProgram = "playit-cli";
