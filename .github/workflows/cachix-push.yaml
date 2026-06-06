@@ -9,8 +9,29 @@ on:
       - "packages/playit.nix"
 
 jobs:
-  upload-cachix:
+  eval-matrix:
     runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.eval-matrix.outputs.matrix }}
+    steps:
+      - name: Setup job
+        uses: pedorich-n/github-workflows/.github/actions/setup-nix-job@394fb5dff4f8ee88f7fec2c55bb178875af055c5 # main
+        with:
+          git_https_token: ${{ steps.app_auth.outputs.token }}
+
+      - name: Evaluate matrix
+        id: eval-matrix
+        shell: bash
+        run: |
+          matrix=$(nix eval --accept-flake-config --json .#ghaMatrices.cache.matrix)
+          echo "matrix=$matrix" >> "$GITHUB_OUTPUT"
+
+  upload-cachix:
+    name: ${{ matrix.name }} (${{ matrix.system }})
+    needs: eval-matrix
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix: ${{fromJSON(needs.eval-matrix.outputs.matrix)}}
     steps:
       - name: Setup job
         uses: pedorich-n/github-workflows/.github/actions/setup-nix-job@394fb5dff4f8ee88f7fec2c55bb178875af055c5 # main
