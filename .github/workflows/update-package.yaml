@@ -14,16 +14,16 @@ jobs:
     steps:
       - name: Get Github App info
         id: app_auth
-        uses: pedorich-n/github-workflows/.github/actions/app-token@394fb5dff4f8ee88f7fec2c55bb178875af055c5 # main
+        uses: pedorich-n/github-workflows/.github/actions/app-token@49b512bbb8bc337ceac27bee872950d6fa79cb2e # main
         with:
           client_id: ${{ vars.APP_CLIENT_ID }}
           private_key: ${{ secrets.APP_PRIVATE_KEY }}
 
       - name: Setup job
-        uses: pedorich-n/github-workflows/.github/actions/setup-nix-job@394fb5dff4f8ee88f7fec2c55bb178875af055c5 # main
+        uses: pedorich-n/github-workflows/.github/actions/setup-nix-job@49b512bbb8bc337ceac27bee872950d6fa79cb2e # main
 
       - name: Run nix-update
-        uses: pedorich-n/github-workflows/.github/actions/nix-update@394fb5dff4f8ee88f7fec2c55bb178875af055c5 # main
+        uses: pedorich-n/github-workflows/.github/actions/nix-update@49b512bbb8bc337ceac27bee872950d6fa79cb2e # main
         with:
           token: ${{ steps.app_auth.outputs.token }}
           committer: ${{ steps.app_auth.outputs.committer }}
