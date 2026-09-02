@@ -18,7 +18,7 @@ jobs:
       matrix: ${{ steps.eval-matrix.outputs.matrix }}
     steps:
       - name: Setup job
-        uses: pedorich-n/github-workflows/.github/actions/setup-nix-job@87e04487a67351351bfbbd2670ea74763bf89f13 # main
+        uses: pedorich-n/github-workflows/.github/actions/setup-nix-job@8dae1302115fad2af5d92f4e0368f727b17cd8ce # main
 
       - name: Evaluate matrix
         id: eval-matrix
@@ -35,7 +35,7 @@ jobs:
       matrix: ${{ fromJSON(needs.eval-matrix.outputs.matrix) }}
     steps:
       - name: Setup job
-        uses: pedorich-n/github-workflows/.github/actions/setup-nix-job@87e04487a67351351bfbbd2670ea74763bf89f13 # main
+        uses: pedorich-n/github-workflows/.github/actions/setup-nix-job@8dae1302115fad2af5d92f4e0368f727b17cd8ce # main
 
       - uses: cachix/cachix-action@5f2d7c5294214f71b873db4b969586b980625e71 # v17
         with:
