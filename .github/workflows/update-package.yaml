@@ -23,9 +23,30 @@ jobs:
         uses: pedorich-n/github-workflows/.github/actions/setup-nix-job@8dae1302115fad2af5d92f4e0368f727b17cd8ce # main
 
       - name: Run nix-update
+        id: nix_update
         uses: pedorich-n/github-workflows/.github/actions/nix-update@8dae1302115fad2af5d92f4e0368f727b17cd8ce # main
         with:
-          token: ${{ steps.app_auth.outputs.token }}
-          committer: ${{ steps.app_auth.outputs.committer }}
-          author: ${{ steps.app_auth.outputs.committer }}
           packages: playit
+
+      - name: Check for changes
+        id: check_changes
+        run: |
+          if [[ -n "$(git status --porcelain)" ]]; then
+            echo "Changes detected"
+            echo "changes=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "No changes detected"
+            echo "changes=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Commit and open PR
+        if: steps.check_changes.outputs.changes == 'true'
+        uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8
+        with:
+          token: ${{ steps.app_auth.outputs.token }}
+          committer: "github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>"
+          author: "github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>"
+          commit-message: "Updated playit package using nix-update"
+          branch: "nix-update/${{ github.run_id }}"
+          title: "Update playit package using nix-update"
+          body: ${{ steps.nix_update.outputs.summary }}
