@@ -46,7 +46,6 @@ pkgs.testers.nixosTest {
       services.playit = {
         enable = true;
         secretPath = "/etc/secret/path";
-        socketPath = "/var/run/playit/playit.sock";
       };
     };
   };
@@ -72,7 +71,7 @@ pkgs.testers.nixosTest {
       machine1.wait_for_unit("network-online.target")
       machine1.wait_for_unit("playit.service")
 
-      machine1.wait_for_file("/var/run/playit/playit.sock")
+      machine1.wait_for_file("/var/run/playit/playitd.sock")
 
       machine1.shutdown()
   '';

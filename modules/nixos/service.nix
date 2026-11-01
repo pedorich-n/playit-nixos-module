@@ -6,7 +6,7 @@
 }:
 let
   cfg = config.services.playit;
-  defaultSocketPath = "/run/playit/playit.sock";
+  defaultSocketPath = "/run/playit/playitd.sock";
 in
 {
   imports = [
@@ -41,9 +41,14 @@ in
       socketPath = lib.mkOption {
         type = lib.types.path;
         default = defaultSocketPath;
-        example = lib.literalExpression "/run/playit/playit.sock";
+        example = lib.literalExpression "/run/playit/custom.sock";
         description = ''
-          Path to the IPC socket that `playit-cli` will use to connect to `playitd`.
+          Path to the IPC socket that `playitd` will listen on.
+
+          ::: {.note}
+          `playit-cli` expects the socket at its default location `${defaultSocketPath}`.
+          If you change this option, pass `--socket-path` to `playit-cli` explicitly.
+          :::
 
           ::: {.note}
           If using a non-default socket path, ensure its parent directory is accessible to the service (it is added to `ReadWritePaths` automatically).
@@ -62,19 +67,11 @@ in
           :::
         '';
       };
-
-      finalPackage = lib.mkOption {
-        type = lib.types.package;
-        readOnly = true;
-        internal = true;
-        description = "Final playit package with socket path override applied if needed";
-        default = if cfg.socketPath != defaultSocketPath then cfg.package.override { cliSocketPath = cfg.socketPath; } else cfg.package;
-      };
     };
   };
 
   config = lib.mkIf cfg.enable {
-    environment.systemPackages = [ cfg.finalPackage ];
+    environment.systemPackages = [ cfg.package ];
 
     systemd.services.playit = {
       description = "Playit.gg agent";
@@ -84,7 +81,7 @@ in
 
       serviceConfig = {
         ExecStart = lib.concatStringsSep " " [
-          (lib.getExe' cfg.finalPackage "playitd")
+          (lib.getExe' cfg.package "playitd")
           "--secret-path"
           "%d/secret"
           "--log-path"
