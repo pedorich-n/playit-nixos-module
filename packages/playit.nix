@@ -1,8 +1,6 @@
 {
-  cliSocketPath ? "/run/playit/playit.sock",
   fetchFromGitHub,
   rustPlatform,
-  makeWrapper,
   versionCheckHook,
   lib,
 }:
@@ -30,16 +28,6 @@ rustPlatform.buildRustPackage (finalAttrs: {
     "--workspace"
   ]
   ++ lib.map (pkg: "--exclude ${pkg}") packagesToExclude;
-
-  nativeBuildInputs = [
-    makeWrapper
-  ];
-
-  postInstall = ''
-    wrapProgram ${placeholder "out"}/bin/playit-cli \
-      --set-default PLAYIT_SOCKET_PATH ${lib.escapeShellArg cliSocketPath} \
-      --add-flags '--socket-path="''${PLAYIT_SOCKET_PATH}"'
-  '';
 
   nativeInstallCheckInputs = [
     versionCheckHook
