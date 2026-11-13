@@ -60,9 +60,13 @@ rustPlatform.buildRustPackage (finalAttrs: {
 
   versionCheckProgramArg = "version";
 
-  # agent_core's TLS tests build a rustls client and fail when the CA store is empty.
   preCheck = ''
+    # agent_core's TLS tests build a rustls client and fail when the CA store is empty.
     export SSL_CERT_FILE="${cacert}/etc/ssl/certs/ca-bundle.crt"
+
+    # nixpkgs strips the binaries itself; the manifest's strip setting makes
+    # the build and check phases disagree, which causes a rebuild during the check phase.
+    export CARGO_PROFILE_RELEASE_STRIP=false
   '';
 
   desktopItems = [ "linux/gg.playit.gui.desktop" ];
