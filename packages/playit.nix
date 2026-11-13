@@ -3,11 +3,10 @@
   fetchFromGitHub,
   rustPlatform,
   versionCheckHook,
-  stdenv,
   cacert,
+  copyDesktopItems,
   libxcb,
   libxkbcommon,
-  patchelf,
   vulkan-loader,
   wayland,
 }:
@@ -31,7 +30,7 @@ rustPlatform.buildRustPackage (finalAttrs: {
     SSL_CERT_FILE = "${cacert}/etc/ssl/certs/ca-bundle.crt";
   };
 
-  buildInputs = lib.optionals stdenv.hostPlatform.isLinux [
+  buildInputs = [
     libxcb
     libxkbcommon
   ];
@@ -39,8 +38,7 @@ rustPlatform.buildRustPackage (finalAttrs: {
   strictDeps = true;
   doCheck = true;
 
-  nativeBuildInputs = lib.optional stdenv.hostPlatform.isLinux patchelf;
-  postFixup = lib.optionalString stdenv.hostPlatform.isLinux ''
+  postFixup = ''
     patchelf $out/bin/playit-gui --add-rpath ${
       lib.makeLibraryPath [
         vulkan-loader
@@ -54,6 +52,15 @@ rustPlatform.buildRustPackage (finalAttrs: {
     versionCheckHook
   ];
 
+  nativeBuildInputs = [ copyDesktopItems ];
+  desktopItems = [ "linux/gg.playit.gui.desktop" ];
+  postInstall = ''
+    for size in 32 48 64 128; do
+      install -Dm644 "linux/icons/gg.playit.gui-$size.png" \
+        "$out/share/icons/hicolor/''${size}x''${size}/apps/gg.playit.gui.png"
+    done
+  '';
+
   doInstallCheck = true;
   versionCheckProgramArg = "version";
 
@@ -63,7 +70,7 @@ rustPlatform.buildRustPackage (finalAttrs: {
     homepage = "https://github.com/playit-cloud/playit-agent";
     changelog = "https://github.com/playit-cloud/playit-agent/releases/tag/v${finalAttrs.version}";
     license = lib.licenses.bsd2;
-    platforms = lib.platforms.linux ++ lib.platforms.darwin;
+    platforms = lib.platforms.linux;
     sourceProvenance = [ lib.sourceTypes.fromSource ];
   };
 })
