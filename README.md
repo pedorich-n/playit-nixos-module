@@ -2,7 +2,7 @@
 
 This NixOS module provides two things:
 
-- packaged [playit-agent](https://github.com/playit-cloud/playit-agent)
+- packaged [playit-agent](https://github.com/playit-cloud/playit-agent) — the `playit-cli` command line interface, the `playitd` daemon and the `playit-gui` desktop window
 - a service definition to run `playitd` as systemd service
 
 ## Usage
