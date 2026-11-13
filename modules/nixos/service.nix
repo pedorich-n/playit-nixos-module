@@ -37,7 +37,21 @@ in
         example = lib.literalExpression "/etc/playit/secret.toml";
         description = ''
           Path to a TOML file containing the playit agent secret.
-          Loaded via systemd's `LoadCredential` directive, so the file permissions can be tightened to `0400` and owned by any user.
+          Loaded via systemd's `LoadCredential` directive,
+          so the file permissions can be tightened to `0400` and owned by any user.
+
+          ::: {.note}
+          The secret is created with the agent's claim flow: run
+          `playit-cli claim generate` to get a claim code, then
+          `playit-cli claim exchange <claim-code>`, open the
+          printed link and approve the agent in the browser.
+          The secret is printed once the agent is approved.
+          Put it in a TOML file like this:
+
+          ```toml
+          secret_key = "<secret>"
+          ```
+          :::
         '';
       };
 
