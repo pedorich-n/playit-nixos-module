@@ -23,20 +23,17 @@ rustPlatform.buildRustPackage (finalAttrs: {
 
   cargoHash = "sha256-rK0pBsx9y+jXV2lZJpkwonsKBccl6OEuOeuK2P/fZuA=";
 
+  strictDeps = true;
   __structuredAttrs = true;
 
-  env = {
-    # agent_core's TLS tests build a rustls client and fail when the CA store is empty.
-    SSL_CERT_FILE = "${cacert}/etc/ssl/certs/ca-bundle.crt";
-  };
+  nativeBuildInputs = [
+    copyDesktopItems
+  ];
 
   buildInputs = [
     libxcb
     libxkbcommon
   ];
-
-  strictDeps = true;
-  doCheck = true;
 
   postFixup = ''
     patchelf $out/bin/playit-gui --add-rpath ${
@@ -47,12 +44,21 @@ rustPlatform.buildRustPackage (finalAttrs: {
     }
   '';
 
+  doCheck = true;
+  doInstallCheck = true;
+
   nativeCheckInputs = [
     cacert
     versionCheckHook
   ];
 
-  nativeBuildInputs = [ copyDesktopItems ];
+  versionCheckProgramArg = "version";
+
+  # agent_core's TLS tests build a rustls client and fail when the CA store is empty.
+  preCheck = ''
+    export SSL_CERT_FILE="${cacert}/etc/ssl/certs/ca-bundle.crt"
+  '';
+
   desktopItems = [ "linux/gg.playit.gui.desktop" ];
   postInstall = ''
     for size in 32 48 64 128; do
@@ -60,9 +66,6 @@ rustPlatform.buildRustPackage (finalAttrs: {
         "$out/share/icons/hicolor/''${size}x''${size}/apps/gg.playit.gui.png"
     done
   '';
-
-  doInstallCheck = true;
-  versionCheckProgramArg = "version";
 
   meta = {
     mainProgram = "playit-cli";
