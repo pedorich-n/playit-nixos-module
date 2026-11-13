@@ -3,6 +3,13 @@
   rustPlatform,
   versionCheckHook,
   lib,
+  stdenv,
+  cacert,
+  libxcb,
+  libxkbcommon,
+  patchelf,
+  vulkan-loader,
+  wayland,
 }:
 let
   # Windows-specific packages
@@ -29,14 +36,36 @@ rustPlatform.buildRustPackage (finalAttrs: {
   ]
   ++ lib.map (pkg: "--exclude ${pkg}") packagesToExclude;
 
-  nativeInstallCheckInputs = [
-    versionCheckHook
+  env = {
+    # agent_core's TLS tests build a rustls client and fail when the CA store is empty.
+    SSL_CERT_FILE = "${cacert}/etc/ssl/certs/ca-bundle.crt";
+  };
+
+  buildInputs = lib.optionals stdenv.hostPlatform.isLinux [
+    libxcb
+    libxkbcommon
   ];
-  doInstallCheck = true;
-  versionCheckProgramArg = "version";
 
   strictDeps = true;
   doCheck = true;
+
+  nativeBuildInputs = lib.optional stdenv.hostPlatform.isLinux patchelf;
+  postFixup = lib.optionalString stdenv.hostPlatform.isLinux ''
+    patchelf $out/bin/playit-gui --add-rpath ${
+      lib.makeLibraryPath [
+        vulkan-loader
+        wayland
+      ]
+    }
+  '';
+
+  nativeCheckInputs = [
+    cacert
+    versionCheckHook
+  ];
+
+  doInstallCheck = true;
+  versionCheckProgramArg = "version";
 
   meta = {
     mainProgram = "playit-cli";
