@@ -110,19 +110,28 @@ in
         PrivateDevices = true;
         PrivateTmp = true;
         PrivateUsers = true;
+        PrivateIPC = true;
         DynamicUser = true;
         ProtectKernelModules = true;
         ProtectKernelTunables = true;
         ProtectKernelLogs = true;
         ProtectControlGroups = true;
         ProtectSystem = "strict";
-        ProtectHome = "read-only";
+        ProtectHome = true;
+        ProtectHostname = true;
+        ProtectProc = "invisible";
         RestrictSUIDSGID = true;
         RestrictNamespaces = true;
         RestrictRealtime = true;
         ProtectClock = true;
+        SystemCallArchitectures = "native";
+        SystemCallFilter = [
+          "@system-service"
+          "~@privileged"
+          "~@resources"
+        ];
         NoNewPrivileges = true;
-        CapabilityBoundingSet = [ ];
+        CapabilityBoundingSet = [ "" ];
       };
     };
 
