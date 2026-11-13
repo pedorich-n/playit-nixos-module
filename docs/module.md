@@ -90,37 +90,3 @@ absolute path
 ```
 
 
-
-## services\.playit\.socketPath
-
-
-
-Path to the IPC socket that ` playitd ` will listen on\.
-
-**Note:** ` playit-cli ` expects the socket at its default location ` /run/playit/playitd.sock `\.
-If you change this option, pass ` --socket-path ` to ` playit-cli ` explicitly\.
-
-**Note:** If using a non-default socket path, ensure its parent directory is accessible to the service (it is added to ` ReadWritePaths ` automatically)\.
-
-
-
-*Type:*
-absolute path
-
-
-
-*Default:*
-
-```nix
-"/run/playit/playitd.sock"
-```
-
-
-
-*Example:*
-
-```nix
-/run/playit/custom.sock
-```
-
-

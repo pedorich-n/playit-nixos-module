@@ -6,7 +6,6 @@
 }:
 let
   cfg = config.services.playit;
-  defaultSocketPath = "/run/playit/playitd.sock";
 in
 {
   imports = [
@@ -20,6 +19,10 @@ in
     '')
     (lib.modules.mkRemovedOptionModule [ "services" "playit" "group" ] ''
       The `group` option has been removed. Playit service now runs under a dynamic group for better security.
+    '')
+    (lib.modules.mkRemovedOptionModule [ "services" "playit" "socketPath" ] ''
+      `playitd`, `playit-cli` and `playit-gui` all expect the IPC socket at
+      `/run/playit/playitd.sock`, so it is no longer configurable.
     '')
   ];
 
@@ -35,24 +38,6 @@ in
         description = ''
           Path to a TOML file containing the playit agent secret.
           Loaded via systemd's `LoadCredential` directive, so the file permissions can be tightened to `0400` and owned by any user.
-        '';
-      };
-
-      socketPath = lib.mkOption {
-        type = lib.types.path;
-        default = defaultSocketPath;
-        example = lib.literalExpression "/run/playit/custom.sock";
-        description = ''
-          Path to the IPC socket that `playitd` will listen on.
-
-          ::: {.note}
-          `playit-cli` expects the socket at its default location `${defaultSocketPath}`.
-          If you change this option, pass `--socket-path` to `playit-cli` explicitly.
-          :::
-
-          ::: {.note}
-          If using a non-default socket path, ensure its parent directory is accessible to the service (it is added to `ReadWritePaths` automatically).
-          :::
         '';
       };
 
@@ -86,8 +71,6 @@ in
           "%d/secret"
           "--log-path"
           "\"\${LOGS_DIRECTORY}/playit.log\""
-          "--socket-path"
-          (lib.escapeShellArg cfg.socketPath)
           "--cert-dir"
           "\"\${STATE_DIRECTORY}/certs\""
         ];
@@ -103,9 +86,6 @@ in
         ];
 
         # Hardening
-        ReadWritePaths = [
-          (dirOf cfg.socketPath)
-        ];
         RestrictAddressFamilies = [
           "AF_INET"
           "AF_INET6"
