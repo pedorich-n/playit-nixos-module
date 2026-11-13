@@ -136,12 +136,13 @@ in
     };
 
     services.logrotate.settings = lib.mkIf cfg.logrotate {
-      # Mirroring https://github.com/playit-cloud/playit-agent/blob/0ac19b418e6c97238958351b1403d9145d1aced4/linux/logrotate.conf
+      # Mirroring https://github.com/playit-cloud/playit-agent/blob/bddcbed5e31e697f3b5793dedc05e934faaf6207/linux/logrotate.conf
       playit = {
         enable = true;
         files = "/var/log/playit/playit.log";
         frequency = "daily";
         rotate = 3;
+        missingok = true;
         copytruncate = true;
         compress = true;
         notifempty = true;
