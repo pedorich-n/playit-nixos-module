@@ -82,11 +82,11 @@ in
         ExecStart = lib.concatStringsSep " " [
           (lib.getExe' cfg.package "playitd")
           "--secret-path"
-          "%d/secret"
+          "\${CREDENTIALS_DIRECTORY}/secret"
           "--log-path"
-          "\"\${LOGS_DIRECTORY}/playit.log\""
+          "\${LOGS_DIRECTORY}/playit.log"
           "--cert-dir"
-          "\"\${STATE_DIRECTORY}/certs\""
+          "\${STATE_DIRECTORY}/certs"
         ];
         Restart = "on-failure";
         LogsDirectory = "playit";
