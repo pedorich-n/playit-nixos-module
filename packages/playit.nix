@@ -23,6 +23,12 @@ rustPlatform.buildRustPackage (finalAttrs: {
 
   cargoHash = "sha256-rK0pBsx9y+jXV2lZJpkwonsKBccl6OEuOeuK2P/fZuA=";
 
+  cargoBuildFlags = [
+    "--workspace"
+    "--exclude"
+    "playitd-tray" # Only works on Windows and macOS
+  ];
+
   strictDeps = true;
   __structuredAttrs = true;
 
