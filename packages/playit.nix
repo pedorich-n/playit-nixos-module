@@ -13,16 +13,16 @@ let
 in
 rustPlatform.buildRustPackage (finalAttrs: {
   pname = "playit";
-  version = "1.2.0";
+  version = "2.0.2";
 
   src = fetchFromGitHub {
     owner = "playit-cloud";
     repo = "playit-agent";
     rev = "v${finalAttrs.version}";
-    sha256 = "sha256-z8ZI/Q4wJmjtRMwxllSi27Cc8CarwLA2V1mLBP/e8ig=";
+    sha256 = "sha256-yAQvEJCIBXgwNg6x1MR5kEPpYgGoiO81RCI+q5fa3/c=";
   };
 
-  cargoHash = "sha256-alePnOhLlAVw6XGTUmTuvT01G1Bq+QbYllLlEpbmCHo=";
+  cargoHash = "sha256-rK0pBsx9y+jXV2lZJpkwonsKBccl6OEuOeuK2P/fZuA=";
 
   cargoBuildFlags = [
     "--workspace"
