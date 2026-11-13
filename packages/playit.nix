@@ -1,8 +1,8 @@
 {
+  lib,
   fetchFromGitHub,
   rustPlatform,
   versionCheckHook,
-  lib,
   stdenv,
   cacert,
   libxcb,
@@ -11,13 +11,6 @@
   vulkan-loader,
   wayland,
 }:
-let
-  # Windows-specific packages
-  packagesToExclude = [
-    "playitd-windows-setup"
-    "playitd-tray"
-  ];
-in
 rustPlatform.buildRustPackage (finalAttrs: {
   pname = "playit";
   version = "2.0.2";
@@ -31,10 +24,7 @@ rustPlatform.buildRustPackage (finalAttrs: {
 
   cargoHash = "sha256-rK0pBsx9y+jXV2lZJpkwonsKBccl6OEuOeuK2P/fZuA=";
 
-  cargoBuildFlags = [
-    "--workspace"
-  ]
-  ++ lib.map (pkg: "--exclude ${pkg}") packagesToExclude;
+  __structuredAttrs = true;
 
   env = {
     # agent_core's TLS tests build a rustls client and fail when the CA store is empty.
