@@ -73,6 +73,11 @@ pkgs.testers.nixosTest {
 
       machine1.wait_for_file("/var/run/playit/playitd.sock")
 
+    with subtest("certificate directory"):
+      machine1.wait_for_unit("playit.service")
+
+      machine1.wait_for_file("/var/lib/playit/certs/mock-acme-account")
+
       machine1.shutdown()
   '';
 }

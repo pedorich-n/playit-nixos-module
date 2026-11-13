@@ -17,11 +17,17 @@ writers.writePython3Bin "playitd"
     parser.add_argument("--secret-path", required=True)
     parser.add_argument("--socket-path", default="/run/playit/playitd.sock")
     parser.add_argument("--log-path", default=None)
+    parser.add_argument("--cert-dir", default=None)
     args = parser.parse_args()
 
     socket_path = Path(args.socket_path)
     socket_path.parent.mkdir(parents=True, exist_ok=True)
     socket_path.write_text("mock-playitd")
+
+    if args.cert_dir:
+        cert_dir = Path(args.cert_dir)
+        cert_dir.mkdir(parents=True, exist_ok=True)
+        (cert_dir / "mock-acme-account").write_text("mock")
 
     secret_value = Path(args.secret_path).read_text()
     print(f"Secret value: {secret_value}", flush=True)

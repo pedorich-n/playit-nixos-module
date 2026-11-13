@@ -88,11 +88,15 @@ in
           "\"\${LOGS_DIRECTORY}/playit.log\""
           "--socket-path"
           (lib.escapeShellArg cfg.socketPath)
+          "--cert-dir"
+          "\"\${STATE_DIRECTORY}/certs\""
         ];
         Restart = "on-failure";
         LogsDirectory = "playit";
         RuntimeDirectory = "playit";
         RuntimeDirectoryMode = "0755";
+        StateDirectory = "playit";
+        StateDirectoryMode = "0700";
 
         LoadCredential = [
           "secret:${cfg.secretPath}"
