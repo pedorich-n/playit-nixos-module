@@ -1,42 +1,81 @@
 {
+  lib,
   fetchFromGitHub,
   rustPlatform,
   versionCheckHook,
-  lib,
+  cacert,
+  copyDesktopItems,
+  libxcb,
+  libxkbcommon,
+  vulkan-loader,
+  wayland,
 }:
-let
-  # Windows-specific packages
-  packagesToExclude = [
-    "playitd-windows-setup"
-    "playitd-tray"
-  ];
-in
 rustPlatform.buildRustPackage (finalAttrs: {
   pname = "playit";
-  version = "1.2.0";
+  version = "2.0.2";
 
   src = fetchFromGitHub {
     owner = "playit-cloud";
     repo = "playit-agent";
     rev = "v${finalAttrs.version}";
-    sha256 = "sha256-z8ZI/Q4wJmjtRMwxllSi27Cc8CarwLA2V1mLBP/e8ig=";
+    sha256 = "sha256-yAQvEJCIBXgwNg6x1MR5kEPpYgGoiO81RCI+q5fa3/c=";
   };
 
-  cargoHash = "sha256-alePnOhLlAVw6XGTUmTuvT01G1Bq+QbYllLlEpbmCHo=";
+  cargoHash = "sha256-rK0pBsx9y+jXV2lZJpkwonsKBccl6OEuOeuK2P/fZuA=";
 
   cargoBuildFlags = [
     "--workspace"
-  ]
-  ++ lib.map (pkg: "--exclude ${pkg}") packagesToExclude;
-
-  nativeInstallCheckInputs = [
-    versionCheckHook
+    "--exclude"
+    "playitd-tray" # Only works on Windows and macOS
   ];
-  doInstallCheck = true;
-  versionCheckProgramArg = "version";
 
   strictDeps = true;
+  __structuredAttrs = true;
+
+  nativeBuildInputs = [
+    copyDesktopItems
+  ];
+
+  buildInputs = [
+    libxcb
+    libxkbcommon
+  ];
+
+  postFixup = ''
+    patchelf $out/bin/playit-gui --add-rpath ${
+      lib.makeLibraryPath [
+        vulkan-loader
+        wayland
+      ]
+    }
+  '';
+
   doCheck = true;
+  doInstallCheck = true;
+
+  nativeCheckInputs = [
+    cacert
+    versionCheckHook
+  ];
+
+  versionCheckProgramArg = "version";
+
+  preCheck = ''
+    # agent_core's TLS tests build a rustls client and fail when the CA store is empty.
+    export SSL_CERT_FILE="${cacert}/etc/ssl/certs/ca-bundle.crt"
+
+    # nixpkgs strips the binaries itself; the manifest's strip setting makes
+    # the build and check phases disagree, which causes a rebuild during the check phase.
+    export CARGO_PROFILE_RELEASE_STRIP=false
+  '';
+
+  desktopItems = [ "linux/gg.playit.gui.desktop" ];
+  postInstall = ''
+    for size in 32 48 64 128; do
+      install -Dm644 "linux/icons/gg.playit.gui-$size.png" \
+        "$out/share/icons/hicolor/''${size}x''${size}/apps/gg.playit.gui.png"
+    done
+  '';
 
   meta = {
     mainProgram = "playit-cli";
@@ -44,7 +83,7 @@ rustPlatform.buildRustPackage (finalAttrs: {
     homepage = "https://github.com/playit-cloud/playit-agent";
     changelog = "https://github.com/playit-cloud/playit-agent/releases/tag/v${finalAttrs.version}";
     license = lib.licenses.bsd2;
-    platforms = lib.platforms.linux ++ lib.platforms.darwin;
+    platforms = lib.platforms.linux;
     sourceProvenance = [ lib.sourceTypes.fromSource ];
   };
 })

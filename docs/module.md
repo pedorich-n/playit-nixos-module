@@ -74,7 +74,19 @@ true
 
 
 Path to a TOML file containing the playit agent secret\.
-Loaded via systemd’s ` LoadCredential ` directive, so the file permissions can be tightened to ` 0400 ` and owned by any user\.
+Loaded via systemd’s ` LoadCredential ` directive,
+so the file permissions can be tightened to ` 0400 ` and owned by any user\.
+
+**Note:** The secret is created with the agent’s claim flow: run
+` playit-cli claim generate ` to get a claim code, then
+` playit-cli claim exchange <claim-code> `, open the
+printed link and approve the agent in the browser\.
+The secret is printed once the agent is approved\.
+Put it in a TOML file like this:
+
+```toml
+secret_key = "<secret>"
+```
 
 
 
@@ -87,40 +99,6 @@ absolute path
 
 ```nix
 /etc/playit/secret.toml
-```
-
-
-
-## services\.playit\.socketPath
-
-
-
-Path to the IPC socket that ` playitd ` will listen on\.
-
-**Note:** ` playit-cli ` expects the socket at its default location ` /run/playit/playitd.sock `\.
-If you change this option, pass ` --socket-path ` to ` playit-cli ` explicitly\.
-
-**Note:** If using a non-default socket path, ensure its parent directory is accessible to the service (it is added to ` ReadWritePaths ` automatically)\.
-
-
-
-*Type:*
-absolute path
-
-
-
-*Default:*
-
-```nix
-"/run/playit/playitd.sock"
-```
-
-
-
-*Example:*
-
-```nix
-/run/playit/custom.sock
 ```
 
 

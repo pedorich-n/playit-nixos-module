@@ -6,7 +6,6 @@
 }:
 let
   cfg = config.services.playit;
-  defaultSocketPath = "/run/playit/playitd.sock";
 in
 {
   imports = [
@@ -21,6 +20,10 @@ in
     (lib.modules.mkRemovedOptionModule [ "services" "playit" "group" ] ''
       The `group` option has been removed. Playit service now runs under a dynamic group for better security.
     '')
+    (lib.modules.mkRemovedOptionModule [ "services" "playit" "socketPath" ] ''
+      `playitd`, `playit-cli` and `playit-gui` all expect the IPC socket at
+      `/run/playit/playitd.sock`, so it is no longer configurable.
+    '')
   ];
 
   options = {
@@ -34,24 +37,20 @@ in
         example = lib.literalExpression "/etc/playit/secret.toml";
         description = ''
           Path to a TOML file containing the playit agent secret.
-          Loaded via systemd's `LoadCredential` directive, so the file permissions can be tightened to `0400` and owned by any user.
-        '';
-      };
-
-      socketPath = lib.mkOption {
-        type = lib.types.path;
-        default = defaultSocketPath;
-        example = lib.literalExpression "/run/playit/custom.sock";
-        description = ''
-          Path to the IPC socket that `playitd` will listen on.
+          Loaded via systemd's `LoadCredential` directive,
+          so the file permissions can be tightened to `0400` and owned by any user.
 
           ::: {.note}
-          `playit-cli` expects the socket at its default location `${defaultSocketPath}`.
-          If you change this option, pass `--socket-path` to `playit-cli` explicitly.
-          :::
+          The secret is created with the agent's claim flow: run
+          `playit-cli claim generate` to get a claim code, then
+          `playit-cli claim exchange <claim-code>`, open the
+          printed link and approve the agent in the browser.
+          The secret is printed once the agent is approved.
+          Put it in a TOML file like this:
 
-          ::: {.note}
-          If using a non-default socket path, ensure its parent directory is accessible to the service (it is added to `ReadWritePaths` automatically).
+          ```toml
+          secret_key = "<secret>"
+          ```
           :::
         '';
       };
@@ -83,25 +82,24 @@ in
         ExecStart = lib.concatStringsSep " " [
           (lib.getExe' cfg.package "playitd")
           "--secret-path"
-          "%d/secret"
+          "\${CREDENTIALS_DIRECTORY}/secret"
           "--log-path"
-          "\"\${LOGS_DIRECTORY}/playit.log\""
-          "--socket-path"
-          (lib.escapeShellArg cfg.socketPath)
+          "\${LOGS_DIRECTORY}/playit.log"
+          "--cert-dir"
+          "\${STATE_DIRECTORY}/certs"
         ];
         Restart = "on-failure";
         LogsDirectory = "playit";
         RuntimeDirectory = "playit";
         RuntimeDirectoryMode = "0755";
+        StateDirectory = "playit";
+        StateDirectoryMode = "0700";
 
         LoadCredential = [
           "secret:${cfg.secretPath}"
         ];
 
         # Hardening
-        ReadWritePaths = [
-          (dirOf cfg.socketPath)
-        ];
         RestrictAddressFamilies = [
           "AF_INET"
           "AF_INET6"
@@ -112,29 +110,39 @@ in
         PrivateDevices = true;
         PrivateTmp = true;
         PrivateUsers = true;
+        PrivateIPC = true;
         DynamicUser = true;
         ProtectKernelModules = true;
         ProtectKernelTunables = true;
         ProtectKernelLogs = true;
         ProtectControlGroups = true;
         ProtectSystem = "strict";
-        ProtectHome = "read-only";
+        ProtectHome = true;
+        ProtectHostname = true;
+        ProtectProc = "invisible";
         RestrictSUIDSGID = true;
         RestrictNamespaces = true;
         RestrictRealtime = true;
         ProtectClock = true;
+        SystemCallArchitectures = "native";
+        SystemCallFilter = [
+          "@system-service"
+          "~@privileged"
+          "~@resources"
+        ];
         NoNewPrivileges = true;
-        CapabilityBoundingSet = [ ];
+        CapabilityBoundingSet = [ "" ];
       };
     };
 
     services.logrotate.settings = lib.mkIf cfg.logrotate {
-      # Mirroring https://github.com/playit-cloud/playit-agent/blob/0ac19b418e6c97238958351b1403d9145d1aced4/linux/logrotate.conf
+      # Mirroring https://github.com/playit-cloud/playit-agent/blob/bddcbed5e31e697f3b5793dedc05e934faaf6207/linux/logrotate.conf
       playit = {
         enable = true;
         files = "/var/log/playit/playit.log";
         frequency = "daily";
         rotate = 3;
+        missingok = true;
         copytruncate = true;
         compress = true;
         notifempty = true;
